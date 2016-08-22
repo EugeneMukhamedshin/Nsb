@@ -39,7 +39,6 @@
             if (strlen($_FILES['files']['name'][$i]) > 1) {
                 if (move_uploaded_file($_FILES['files']['tmp_name'][$i], 'content/' . $id . '/' . $name)) {
                     $count++;
-                    alert($_FILES['files']['name'][$i]);
                 }
             }
         }
