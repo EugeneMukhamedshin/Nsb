@@ -22,10 +22,6 @@
 		$name = $row['name'];
 		$obj_filename = $row['obj_filename'];
 		$mtl_filename = $row['mtl_filename'];
-
-		echo $name;
-		echo $obj_filename;
-		echo $mtl_filename;
     } else {
         echo "0 results";
     }
@@ -58,6 +54,7 @@
 	</head>
 	<body>
 		<div id="info">
+			<p id="pinfo"/>
 		</div>
 
 		<script src="js/three.js"></script>
@@ -109,58 +106,102 @@
 				camera.position.set( 0, 150, 500 );
 
 				scene = new THREE.Scene();
+				scene.fog = new THREE.Fog( 0xcce0ff, 500, 10000 );
 
-				// Lights
+				// lights
 
-				ambLight = new THREE.AmbientLight( 0x404040 );
-				scene.add( ambLight );
+				var light, materials;
 
-				dirLight1 = new THREE.DirectionalLight( 0xffffff, 0.3 );
-				dirLight1.name = 'Dir. Light';
-				dirLight1.position.set( 100, 400, 100 );
-                initLightShadow(dirLight1);
-				scene.add( dirLight1 );
+				scene.add( new THREE.AmbientLight( 0x666666 ) );
 
-				//scene.add( new THREE.CameraHelper( dirLight1.shadow.camera ) );
+				light = new THREE.DirectionalLight( 0xdfebff, 1.75 );
+				light.position.set( 50, 200, 100 );
+				light.position.multiplyScalar( 1.3 );
 
-				dirLight2 = new THREE.DirectionalLight( 0xffffff, 0.3 );
-				dirLight2.name = 'Dir. Light';
-				dirLight2.position.set( 100, 400, -100 );
-                initLightShadow(dirLight2);
-				scene.add( dirLight2 );
+				light.castShadow = true;
 
-				//scene.add( new THREE.CameraHelper( dirLight2.shadow.camera ) );
+				light.shadow.mapSize.width = 1024;
+				light.shadow.mapSize.height = 1024;
 
-				dirLight3 = new THREE.DirectionalLight( 0xffffff, 0.3 );
-				dirLight3.name = 'Dir. Light';
-				dirLight3.position.set( -100, 400, 100 );
-                initLightShadow(dirLight3);
-				scene.add( dirLight3 );
+				var d = 300;
 
-				//scene.add( new THREE.CameraHelper( dirLight3.shadow.camera ) );
+				light.shadow.camera.left = - d;
+				light.shadow.camera.right = d;
+				light.shadow.camera.top = d;
+				light.shadow.camera.bottom = - d;
 
-				dirLight4 = new THREE.DirectionalLight( 0xffffff, 0.3 );
-				dirLight4.name = 'Dir. Light';
-				dirLight4.position.set( -100, 400, -100 );
-                initLightShadow(dirLight4);
-				scene.add( dirLight4 );
+				light.shadow.camera.far = 1000;
+
+				scene.add( light );
+
+				// // Lights
+
+				// ambLight = new THREE.AmbientLight( 0x404040 );
+				// scene.add( ambLight );
+
+				// dirLight1 = new THREE.DirectionalLight( 0xffffff, 0.3 );
+				// dirLight1.name = 'Dir. Light';
+				// dirLight1.position.set( 100, 400, 100 );
+                // initLightShadow(dirLight1);
+				// scene.add( dirLight1 );
+
+				// //scene.add( new THREE.CameraHelper( dirLight1.shadow.camera ) );
+
+				// dirLight2 = new THREE.DirectionalLight( 0xffffff, 0.3 );
+				// dirLight2.name = 'Dir. Light';
+				// dirLight2.position.set( 100, 400, -100 );
+                // initLightShadow(dirLight2);
+				// scene.add( dirLight2 );
+
+				// //scene.add( new THREE.CameraHelper( dirLight2.shadow.camera ) );
+
+				// dirLight3 = new THREE.DirectionalLight( 0xffffff, 0.3 );
+				// dirLight3.name = 'Dir. Light';
+				// dirLight3.position.set( -100, 400, 100 );
+                // initLightShadow(dirLight3);
+				// scene.add( dirLight3 );
+
+				// //scene.add( new THREE.CameraHelper( dirLight3.shadow.camera ) );
+
+				// dirLight4 = new THREE.DirectionalLight( 0xffffff, 0.3 );
+				// dirLight4.name = 'Dir. Light';
+				// dirLight4.position.set( -100, 400, -100 );
+                // initLightShadow(dirLight4);
+				// scene.add( dirLight4 );
 
 				// //scene.add( new THREE.CameraHelper( dirLight4.shadow.camera ) );
 
-				var geometry = new THREE.BoxGeometry( 100, 0.15, 100 );
-				var material = new THREE.MeshPhongMaterial( {
-					color: 0xa0adaf,
-					shininess: 150,
-					specular: 0xffffff,
-					shading: THREE.SmoothShading
-				} );
+				// var geometry = new THREE.BoxGeometry( 100, 0.15, 100 );
+				// var material = new THREE.MeshPhongMaterial( {
+				// 	color: 0xa0adaf,
+				// 	shininess: 150,
+				// 	specular: 0xffffff,
+				// 	shading: THREE.SmoothShading
+				// } );
 
-				var ground = new THREE.Mesh( geometry, material );
-				ground.scale.multiplyScalar( 3 );
-				ground.castShadow = false;
-				ground.receiveShadow = true;
-				scene.add( ground );
+				// var ground = new THREE.Mesh( geometry, material );
+				// ground.scale.multiplyScalar( 3 );
+				// ground.castShadow = false;
+				// ground.receiveShadow = true;
+				// scene.add( ground );
 
+				// ground
+
+				var loader = new THREE.TextureLoader();
+
+				var groundTexture = loader.load( 'textures/grasslight-big.jpg' );
+				groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
+				groundTexture.repeat.set( 25, 25 );
+				groundTexture.anisotropy = 16;
+
+				var groundMaterial = new THREE.MeshPhongMaterial( { color: 0xffffff, specular: 0x111111, map: groundTexture } );
+
+				var mesh = new THREE.Mesh( new THREE.PlaneBufferGeometry( 20000, 20000 ), groundMaterial );
+				mesh.position.y = 0;
+				mesh.rotation.x = - Math.PI / 2;
+				mesh.receiveShadow = true;
+				scene.add( mesh );	
+				
 				// model
 
 				var onProgress = function ( xhr ) {
@@ -202,16 +243,30 @@
 
 			function initMisc() {
 
-				renderer = new THREE.WebGLRenderer();
-				renderer.setClearColor( 0x000000 );
+				// renderer = new THREE.WebGLRenderer();
+				// renderer.setClearColor( 0x000000 );
+				// renderer.setPixelRatio( window.devicePixelRatio );
+				// renderer.setSize( window.innerWidth, window.innerHeight );
+				// renderer.shadowMap.enabled = true;
+				// renderer.shadowMap.type = THREE.BasicShadowMap;
+
+				renderer = new THREE.WebGLRenderer( { antialias: true } );
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
-				renderer.shadowMap.enabled = true;
-				renderer.shadowMap.type = THREE.BasicShadowMap;
+				renderer.setClearColor( scene.fog.color );
 
+				renderer.gammaInput = true;
+				renderer.gammaOutput = true;
+
+				renderer.shadowMap.enabled = true;
+				
 				// Mouse control
 				controls = new THREE.OrbitControls( camera, renderer.domElement );
-				controls.target.set( 0, 2, 0 );
+				controls.minPolarAngle = Math.PI * 0.25;
+				controls.maxPolarAngle = Math.PI * 0.5;
+				controls.minDistance = 100;
+				controls.maxDistance = 750;
+				// controls.target.set( 0, 2, 0 );
 				controls.update();
 
 				// clock = new THREE.Clock();
