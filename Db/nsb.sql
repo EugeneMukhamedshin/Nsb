@@ -1,7 +1,7 @@
 ﻿--
 -- Скрипт сгенерирован Devart dbForge Studio for MySQL, Версия 7.1.13.0
 -- Домашняя страница продукта: http://www.devart.com/ru/dbforge/mysql/studio
--- Дата скрипта: 23.08.2016 0:33:55
+-- Дата скрипта: 25.08.2016 23:41:53
 -- Версия сервера: 5.7.13-log
 -- Версия клиента: 4.1
 --
@@ -39,7 +39,7 @@ CREATE TABLE models (
   PRIMARY KEY (id)
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 27
+AUTO_INCREMENT = 29
 AVG_ROW_LENGTH = 1820
 CHARACTER SET utf8
 COLLATE utf8_general_ci
@@ -70,10 +70,12 @@ INSERT INTO models VALUES
 (2, 'male22', 'male02.obj', 'male02_dds.mtl'),
 (3, 'female', 'female02.obj', 'female02.mtl'),
 (4, 'walthead', 'WaltHead.obj', 'WaltHead.mtl'),
-(23, '', 'nupogodi.obj', 'nupogodi.mtl'),
-(24, '', 'cognac.obj', 'cognac.mtl'),
-(25, '', 'table.obj', 'table.mtl'),
-(26, '', 'falcon.obj', 'falcon.mtl');
+(23, 'nupogodi', 'nupogodi.obj', 'nupogodi.mtl'),
+(24, 'cognac', 'cognac.obj', 'cognac.mtl'),
+(25, 'table', 'table.obj', 'table.mtl'),
+(26, 'falcon', 'falcon.obj', 'falcon.mtl'),
+(27, 'nupogodi', 'nupogodi.obj', 'nupogodi.mtl'),
+(28, 'kolibri', 'kolibri.obj', 'kolibri.mtl');
 
 -- 
 -- Восстановить предыдущий режим SQL (SQL mode)

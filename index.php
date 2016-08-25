@@ -17,7 +17,7 @@
     if ($result->num_rows > 0) {
         // output data of each row
         while($row = $result->fetch_assoc()) {
-            echo "<a href=\"view_orbit.php?id=" . $row["id"] . "\">" . $row["name"] . "</a><br>";
+            echo "<a href=\"view.php?id=" . $row["id"] . "\">" . $row["name"] . "</a><br>";
         }
     } else {
         echo "0 results";
