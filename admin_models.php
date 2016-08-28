@@ -1,4 +1,12 @@
+<?php
+    header('Content-type: text/html; charset=utf-8');
+?>
+
 <html>
+    <head>
+        <title>Административная панель</title>
+    </head>
+    <script src="dist/jszip.js"></script>
     <body>
 
         <form action="upload_directory.php" method="post" enctype="multipart/form-data">
@@ -7,9 +15,10 @@
             <input type="file" name="files[]" id="files" multiple="" directory="" webkitdirectory="" mozdirectory=""><br/>
             <input class="button" type="submit" value="Upload" />
         </form>
-
-    </body>
-</html>
+        <label>
+            <span class="form-label">Выберите файлы</span>
+            <input type="file" multiple="" id="file-input" text="Выбрать файлы и загрузить">
+        </label>
 <br/>
 <br/>
 
@@ -40,3 +49,21 @@
     }
     $conn->close();
 ?>
+
+        <script type="text/javascript">
+            var fileInput = document.getElementById("file-input");
+            var zip = new JSZip();
+            fileInput.addEventListener('change', function() {
+                for (var i = 0; i < fileInput.files.length; i++) {
+                    console.log(fileInput.files[i]);
+                    zip.file(fileInput.files[i])
+                }
+                zip.generateAsync({type:"blob"})
+                    .then(function (blob) {
+                        saveAs(blob, "hello.zip");
+                    }); 
+            }, false);
+        </script>
+
+    </body>
+</html>
