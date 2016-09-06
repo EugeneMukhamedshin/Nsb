@@ -16,7 +16,7 @@
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
     } 
-    $sql = "SELECT id, name, obj_filename, mtl_filename, add_ground FROM models WHERE id=" . $id;
+    $sql = "SELECT id, name, obj_filename, mtl_filename FROM models WHERE id=" . $id;
     $result = $conn->query($sql);
 
     if ($result->num_rows > 0) {
@@ -25,7 +25,6 @@
 		$name = $row['name'];
 		$obj_filename = $row['obj_filename'];
 		$mtl_filename = $row['mtl_filename'];
-		$add_ground = $row['add_ground'];
     } else {
         echo "0 results";
     }
@@ -97,13 +96,12 @@
 
 		<div id="panel">
 			<img src="textures/logo.png" id="logo"/>
-			<span id="modelNameLabel">Название модели:</span>
 			<h1><?= $name ?></h1>
 		</div>
 
 		<div id="view">
 			<center>
-				<span id="info">Подождите, идет загрузка...</span>
+				<span id="info"></span>
 			</center>
 		</div>
 
@@ -127,6 +125,8 @@
 			var camera, scene, renderer;
 
 			var infoBox = document.getElementById("info");
+
+			var start = new Date();
 			
 			loadObject();
 
@@ -143,51 +143,94 @@
 
 				THREE.Loader.Handlers.add( /\.dds$/i, new THREE.DDSLoader() );
 
-				// //=========================
-				// // JSZipUtils
-				// //=========================
-				// JSZipUtils.getBinaryContent('content/32/32.zip', function(err, data) {
-				// 	try {
-				// 		JSZip.loadAsync(data)
-				// 		.then(function(zip) {
-				// 			return zip.file("Hello.txt").async("string");
-				// 		})
-				// 		.then(function success(text) {
-				// 			showContent(elt, text);
-				// 		}, function error(e) {
-				// 			showError(elt, e);
-				// 		});
-				// 		} catch(e) {
-				// 		showError(elt, e);
-				// 		}
-				// });
+				var filePath = 'content/<?= $id ?>/<?= $obj_filename ?>';
+				console.log(filePath);
+				JSZipUtils.getBinaryContent('content/<?= $id ?>/<?= $obj_filename ?>', function(err, data) {
+					try {
+						JSZip.loadAsync(data)
+						.then(function(zip) {
+							infoBox.innerText = 'Downloaded ' + (new Date() - start);
+							return zip.file('<?= $obj_filename ?>').async('string');
+						})
+						.then(function success(text) {
+							infoBox.innerText = 'Unzipped ' + (new Date() - start);
+							parse(text);
+						}, function error(e) {
+							infoBox.innerText = e;
+						});
+						} catch(e) {
+							infoBox.innerText = e;
+						}
+				});
+				// var mtlLoader = new THREE.MTLLoader();
+				// mtlLoader.setPath( 'content/<?= $id ?>/' );
+				// mtlLoader.load( '<?= $mtl_filename ?>', function( materials ) {
+
+				// 	materials.preload();
+
+				// 	var objLoader = new THREE.OBJLoader();
+				// 	objLoader.setMaterials( materials );
+				// 	objLoader.setPath( 'content/<?= $id ?>/' );
+				// 	objLoader.load( '<?= $obj_filename ?>', function ( object ) {
+                //         object.traverse( function(node) {
+                //             if (node instanceof THREE.Mesh) {
+                //                  node.castShadow = true;
+                //                  node.receiveShadow = true;
+ 				// 			 	// var geometry = new THREE.Geometry().fromBufferGeometry( node.geometry );
+				// 			 	// geometry.computeFaceNormals();
+				// 			 	// geometry.mergeVertices();
+				// 			 	// geometry.computeVertexNormals();
+				// 			 	// node.geometry = new THREE.BufferGeometry().fromGeometry( geometry );
+                //             }
+                //         });
+
+				// 		init( object );
+				// 		animate();
+				// 	}, onProgress, onError );
+
+				// });			
+			}
+
+			function parse(content)
+			{
+				var onProgress = function ( xhr ) {
+					if ( xhr.lengthComputable ) {
+						var percentComplete = xhr.loaded / xhr.total * 100;
+						infoBox.innerText = Math.round(percentComplete, 2) + '% скачано';
+						console.log( Math.round(percentComplete, 2) + '% downloaded' );
+					}
+				};
+
+				var onError = function ( xhr ) { };
+
 				var mtlLoader = new THREE.MTLLoader();
 				mtlLoader.setPath( 'content/<?= $id ?>/' );
 				mtlLoader.load( '<?= $mtl_filename ?>', function( materials ) {
 
+					infoBox.innerText = 'Materials loaded ' + (new Date() - start);
 					materials.preload();
 
 					var objLoader = new THREE.OBJLoader();
 					objLoader.setMaterials( materials );
-					objLoader.setPath( 'content/<?= $id ?>/' );
-					objLoader.load( '<?= $obj_filename ?>', function ( object ) {
-                        object.traverse( function(node) {
-                            if (node instanceof THREE.Mesh) {
-                                node.castShadow = true;
-                                node.receiveShadow = true;
- 								var geometry = new THREE.Geometry().fromBufferGeometry( node.geometry );
-								geometry.computeFaceNormals();
-								geometry.mergeVertices();
-								geometry.computeVertexNormals();
-								node.geometry = new THREE.BufferGeometry().fromGeometry( geometry );
-                            }
-                        });
+					var object = objLoader.parse( content );
+					infoBox.innerText = 'Object parsed ' + (new Date() - start);
+                    object.traverse( function(node) {
+						if (node instanceof THREE.Mesh) {
+							node.castShadow = true;
+							node.receiveShadow = true;
+							// var geometry = new THREE.Geometry().fromBufferGeometry( node.geometry );
+							// geometry.computeFaceNormals();
+							// geometry.mergeVertices();
+							// geometry.computeVertexNormals();
+							// node.geometry = new THREE.BufferGeometry().fromGeometry( geometry );
+						}
+                    });
 
-						init( object );
-						animate();
-					}, onProgress, onError );
-
-				});			}
+					init( object );
+					animate();
+					infoBox.innerText = 'Scene initialized ' + (new Date() - start);
+				});			
+			}
 
 			function init(object) {
 
@@ -222,21 +265,44 @@
 				cL.y *= coeff;
 				cL.z *= coeff;
 
-//				if (requiredDistToObject - objectRadius < nearPlane) {
-					nearPlane = (requiredDistToObject - objectRadius) * 0.2; // move the near plane towards the camera 
-																// by 20% of the distance between the front of the object and the camera
-//				}
-
-//				if (requiredDistToObject + objectRadius > farPlane) {
-					farPlane = requiredDistToObject + objectRadius * 1.8; // move the far plane away from the camera 
-															// by 1.2 time the object radius
-//				}
+				nearPlane = (requiredDistToObject - objectRadius) * 0.2; 
+				farPlane = requiredDistToObject + objectRadius * 4; 
 
 				object.position.x = -bsphere.center.x;
 				object.position.y = -bsphere.center.y;
 				object.position.z = -bsphere.center.z;
+
+				var loader = new THREE.TextureLoader();
+				// ground
+
+				var groundTexture = loader.load( 'textures/grasslight-big.jpg' );
+				groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
+				groundTexture.repeat.set( 4, 4 );
+				groundTexture.anisotropy = 16;
+
+				var groundMaterial = new THREE.MeshPhongMaterial( { color: 0xf0f0f0, specular: 0x111111, map: groundTexture } );
+
+				var mesh = new THREE.Mesh( new THREE.CircleGeometry( bsphere.radius * 1.5, 64 ), groundMaterial );
+				mesh.position.y = -bsphere.center.y;
+				mesh.rotation.x = - Math.PI / 2;
+				mesh.receiveShadow = true;
+				scene.add( mesh );
+
 		        scene.add( object );
-				
+
+				// var groundTexture1 = loader.load( 'textures/road_brick_9.jpg' );
+				// groundTexture1.wrapS = groundTexture1.wrapT = THREE.RepeatWrapping;
+				// groundTexture1.repeat.set( 80, 80 );
+				// groundTexture1.anisotropy = 16;
+
+				// var groundMaterial1 = new THREE.MeshPhongMaterial( { color: 0xf5f5f5, specular: 0x111111 , map: groundTexture1 } );
+
+				// var mesh = new THREE.Mesh( new THREE.PlaneBufferGeometry( bsphere.radius * 30, bsphere.radius * 30 ), groundMaterial1 );
+				// mesh.position.y = -bsphere.center.y - 5;
+				// mesh.rotation.x = - Math.PI / 2;
+				// mesh.receiveShadow = true;
+				// scene.add( mesh );
+
 				// camera
 
 				camera = new THREE.PerspectiveCamera( fovG, container.clientWidth / container.clientHeight, nearPlane, farPlane );
@@ -251,31 +317,29 @@
 
 				scene.add( new THREE.AmbientLight( 0x666666 ) );
 
-				light = new THREE.DirectionalLight( 0xdfebff, 0.75 );
+				light = new THREE.DirectionalLight( 0xdfebff, 1.25 );
 
 				light.position.set( objectRadius * 0.2, objectRadius * 1.2, objectRadius * 0.2 );
 				//light.position.multiplyScalar( 1 / coeff );
 
-				light.castShadow = true;
+				//light.castShadow = true;
 
-				light.shadow.mapSize.width = 1024 * 4;
-				light.shadow.mapSize.height = 1024 * 4;
+				//light.shadow.mapSize.width = 4096;
+				//light.shadow.mapSize.height = 4096;
 
-				var d = objectRadius;
+				//var d = objectRadius;
 
-				light.shadow.camera.left = - d;
-				light.shadow.camera.right = d;
-				light.shadow.camera.top = d;
-				light.shadow.camera.bottom = - d;
-				light.shadow.type = THREE.PCFSoftShadowMap;
-				light.shadowMapSoft = true;
+				//light.shadow.camera.left = - d;
+				//light.shadow.camera.right = d;
+				//light.shadow.camera.top = d;
+				//light.shadow.camera.bottom = - d;
+				//light.shadow.type = THREE.PCFSoftShadowMap;
+				//light.shadowMapSoft = true;
 
-				light.shadow.camera.far = objectRadius * 2;
-				light.shadow.camera.near = objectRadius * 0.2;
+				//light.shadow.camera.far = objectRadius * 2;
+				//light.shadow.camera.near = objectRadius * 0.2;
 
 				scene.add( light );
-
-				var plane = 
 
 				// renderer
 
@@ -289,15 +353,15 @@
 				renderer.gammaInput = true;
 				renderer.gammaOutput = true;
 
-				renderer.shadowMap.enabled = true;
-				renderer.shadowMapSoft = true;
-				renderer.shadowMap.Type = THREE.PCFShadowMap;
+				//renderer.shadowMap.enabled = true;
+				//renderer.shadowMapSoft = true;
+				//renderer.shadowMap.Type = THREE.PCFShadowMap;
 
 				// controls
 				var controls = new THREE.OrbitControls( camera, renderer.domElement );
 				controls.maxPolarAngle = Math.PI * 0.5;
 				controls.minDistance = objectRadius * 1.5;
-				controls.maxDistance = requiredDistToObject;
+				controls.maxDistance = requiredDistToObject * 1.6;
 				controls.enablePan = false;
 
 				window.addEventListener( 'resize', onWindowResize, false );
