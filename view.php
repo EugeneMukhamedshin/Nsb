@@ -49,14 +49,16 @@
 				overflow: hidden;
 			}
 			#info {
-				color: #000;
-				width: 100%;
-				text-align: center;
+				position: absolute;
+				border: 0px;
+				left: 310px;
+				// width: calc(100% - 310px);
+				// height: 100%;
+				width: 500px;
+				height: 350px;
+				overflow: auto;
+				margin: 10px;
 				z-index: 100;
-				display:block;
-				font-weight: bold; 
-				text-decoration: underline; 
-				cursor: pointer;
 			}
 			#panel {
 				position: fixed;
@@ -78,12 +80,15 @@
 			}
 			#view {
 				position: absolute;
-				border: 0px;
+				border: 1px;
 				left: 310px;
-				width: calc(100% - 310px);
-				height: 100%;
+				// width: calc(100% - 310px);
+				// height: 100%;
+				width: 850px;
+				height: 510px;
 				overflow: auto;
 				margin: 10px;
+				z-index: 1000;
 			}
 			#logo {
 				width: 280px;
@@ -99,11 +104,9 @@
 			<h1><?= $name ?></h1>
 		</div>
 
-		<div id="view">
-			<center>
-				<span id="info"></span>
-			</center>
-		</div>
+		<div id="view"></div>
+
+		<span id="info"></span>
 
 		<script src="js/three.js"></script>
 
@@ -129,6 +132,7 @@
 			var start = new Date();
 			
 			loadObject();
+			animate();
 
 			function loadObject() {
 				var onProgress = function ( xhr ) {
@@ -155,40 +159,14 @@
 						.then(function success(text) {
 							infoBox.innerText = 'Unzipped ' + (new Date() - start);
 							parse(text);
+							text = null;
 						}, function error(e) {
 							infoBox.innerText = e;
 						});
 						} catch(e) {
 							infoBox.innerText = e;
 						}
-				});
-				// var mtlLoader = new THREE.MTLLoader();
-				// mtlLoader.setPath( 'content/<?= $id ?>/' );
-				// mtlLoader.load( '<?= $mtl_filename ?>', function( materials ) {
-
-				// 	materials.preload();
-
-				// 	var objLoader = new THREE.OBJLoader();
-				// 	objLoader.setMaterials( materials );
-				// 	objLoader.setPath( 'content/<?= $id ?>/' );
-				// 	objLoader.load( '<?= $obj_filename ?>', function ( object ) {
-                //         object.traverse( function(node) {
-                //             if (node instanceof THREE.Mesh) {
-                //                  node.castShadow = true;
-                //                  node.receiveShadow = true;
- 				// 			 	// var geometry = new THREE.Geometry().fromBufferGeometry( node.geometry );
-				// 			 	// geometry.computeFaceNormals();
-				// 			 	// geometry.mergeVertices();
-				// 			 	// geometry.computeVertexNormals();
-				// 			 	// node.geometry = new THREE.BufferGeometry().fromGeometry( geometry );
-                //             }
-                //         });
-
-				// 		init( object );
-				// 		animate();
-				// 	}, onProgress, onError );
-
-				// });			
+				});	
 			}
 
 			function parse(content)
@@ -217,25 +195,17 @@
                     object.traverse( function(node) {
 						if (node instanceof THREE.Mesh) {
 							node.castShadow = true;
-							node.receiveShadow = true;
-							// var geometry = new THREE.Geometry().fromBufferGeometry( node.geometry );
-							// geometry.computeFaceNormals();
-							// geometry.mergeVertices();
-							// geometry.computeVertexNormals();
-							// node.geometry = new THREE.BufferGeometry().fromGeometry( geometry );
+							//node.receiveShadow = true;
 						}
                     });
 
 					init( object );
-					animate();
+					object = null;
 					infoBox.innerText = 'Scene initialized ' + (new Date() - start);
 				});			
 			}
 
 			function init(object) {
-
-				// container = document.createElement( 'div' );
-				// document.body.appendChild( container );
 
 				container = document.getElementById('view');
 
@@ -243,14 +213,18 @@
 
 				scene = new THREE.Scene();
 
-// 				http://stackoverflow.com/questions/34098571/fit-3d-object-collada-file-within-three-js-canvas-on-initial-load
-
  				var bbox = new THREE.Box3().setFromObject( object );
 				var bsphere = bbox.getBoundingSphere();
 
-				var fovG = 30
- 				var oL,cL; // for the math to make it readable
- 				var FOV = fovG * (Math.PI / 180); // convert to radians
+				var factor = 10 / bsphere.radius;
+				object.scale.set(factor, factor, factor);
+
+ 				bbox = new THREE.Box3().setFromObject( object );
+				bsphere = bbox.getBoundingSphere();
+
+				var fovG = 45
+ 				var oL,cL; 
+ 				var FOV = fovG * (Math.PI / 180); 
  				var objectLocation = oL = bsphere.center;
  				var objectRadius = cf = bsphere.radius;
  				var cameraLocation = cL = {x : 60000, y : 30000, z : 100000};
@@ -265,14 +239,16 @@
 				cL.y *= coeff;
 				cL.z *= coeff;
 
-				nearPlane = (requiredDistToObject - objectRadius) * 0.2; 
+				nearPlane = (requiredDistToObject - objectRadius) * 0.1; 
 				farPlane = requiredDistToObject + objectRadius * 4; 
 
+				object.position = objectLocation;
 				object.position.x = -bsphere.center.x;
-				object.position.y = -bsphere.center.y;
+				object.position.y = -bsphere.center.y * 0.2;
 				object.position.z = -bsphere.center.z;
 
 				var loader = new THREE.TextureLoader();
+
 				// ground
 
 				var groundTexture = loader.load( 'textures/grasslight-big.jpg' );
@@ -280,28 +256,17 @@
 				groundTexture.repeat.set( 4, 4 );
 				groundTexture.anisotropy = 16;
 
-				var groundMaterial = new THREE.MeshPhongMaterial( { color: 0xf0f0f0, specular: 0x111111, map: groundTexture } );
+				loader = null;
+
+				var groundMaterial = new THREE.MeshPhongMaterial( { color: 0xe4e4e4, map: groundTexture } );
 
 				var mesh = new THREE.Mesh( new THREE.CircleGeometry( bsphere.radius * 1.5, 64 ), groundMaterial );
-				mesh.position.y = -bsphere.center.y;
+				mesh.position.y = -bsphere.center.y * 0.2;
 				mesh.rotation.x = - Math.PI / 2;
 				mesh.receiveShadow = true;
 				scene.add( mesh );
 
 		        scene.add( object );
-
-				// var groundTexture1 = loader.load( 'textures/road_brick_9.jpg' );
-				// groundTexture1.wrapS = groundTexture1.wrapT = THREE.RepeatWrapping;
-				// groundTexture1.repeat.set( 80, 80 );
-				// groundTexture1.anisotropy = 16;
-
-				// var groundMaterial1 = new THREE.MeshPhongMaterial( { color: 0xf5f5f5, specular: 0x111111 , map: groundTexture1 } );
-
-				// var mesh = new THREE.Mesh( new THREE.PlaneBufferGeometry( bsphere.radius * 30, bsphere.radius * 30 ), groundMaterial1 );
-				// mesh.position.y = -bsphere.center.y - 5;
-				// mesh.rotation.x = - Math.PI / 2;
-				// mesh.receiveShadow = true;
-				// scene.add( mesh );
 
 				// camera
 
@@ -317,27 +282,27 @@
 
 				scene.add( new THREE.AmbientLight( 0x666666 ) );
 
-				light = new THREE.DirectionalLight( 0xdfebff, 1.25 );
+				light = new THREE.DirectionalLight( 0xdfebff, 2 );
 
 				light.position.set( objectRadius * 0.2, objectRadius * 1.2, objectRadius * 0.2 );
-				//light.position.multiplyScalar( 1 / coeff );
 
-				//light.castShadow = true;
+				light.castShadow = true;
 
-				//light.shadow.mapSize.width = 4096;
-				//light.shadow.mapSize.height = 4096;
+				light.shadow.mapSize.width = 512;
+				light.shadow.mapSize.height = 512;
+				light.shadow.bias = 0;
 
-				//var d = objectRadius;
+				var d = objectRadius;
 
-				//light.shadow.camera.left = - d;
-				//light.shadow.camera.right = d;
-				//light.shadow.camera.top = d;
-				//light.shadow.camera.bottom = - d;
-				//light.shadow.type = THREE.PCFSoftShadowMap;
-				//light.shadowMapSoft = true;
+				light.shadow.camera.left = - d;
+				light.shadow.camera.right = d;
+				light.shadow.camera.top = d;
+				light.shadow.camera.bottom = - d;
+				light.shadow.type = THREE.PCFSoftShadowMap;
+				light.shadowMapSoft = true;
 
-				//light.shadow.camera.far = objectRadius * 2;
-				//light.shadow.camera.near = objectRadius * 0.2;
+				light.shadow.camera.far = objectRadius * 2;
+				light.shadow.camera.near = objectRadius * 0.2;
 
 				scene.add( light );
 
@@ -353,21 +318,19 @@
 				renderer.gammaInput = true;
 				renderer.gammaOutput = true;
 
-				//renderer.shadowMap.enabled = true;
-				//renderer.shadowMapSoft = true;
-				//renderer.shadowMap.Type = THREE.PCFShadowMap;
+				renderer.shadowMap.enabled = true;
+				renderer.shadowMapSoft = true;
+				renderer.shadowMap.Type = THREE.PCFShadowMap;
 
 				// controls
 				var controls = new THREE.OrbitControls( camera, renderer.domElement );
 				controls.maxPolarAngle = Math.PI * 0.5;
-				controls.minDistance = objectRadius * 1.5;
+				controls.minDistance = objectRadius * 1.2;
 				controls.maxDistance = requiredDistToObject * 1.6;
 				controls.enablePan = false;
 
 				window.addEventListener( 'resize', onWindowResize, false );
 			}
-
-			//
 
 			function onWindowResize() {
 				camera.aspect = container.clientWidth / container.clientHeight;
@@ -376,18 +339,16 @@
 				renderer.setSize( container.clientWidth, container.clientHeight );
 			}
 
-			//
-
 			function animate() {
 				requestAnimationFrame( animate );
 				render();
 			}
 
 			function render() {
-				renderer.render( scene, camera );
+				if (renderer != null)
+					renderer.render( scene, camera );
 			}
 
 		</script>
-
 	</body>
 </html>
