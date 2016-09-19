@@ -195,7 +195,7 @@
                     object.traverse( function(node) {
 						if (node instanceof THREE.Mesh) {
 							node.castShadow = true;
-							//node.receiveShadow = true;
+							node.receiveShadow = true;
 						}
                     });
 
@@ -288,8 +288,8 @@
 
 				light.castShadow = true;
 
-				light.shadow.mapSize.width = 512;
-				light.shadow.mapSize.height = 512;
+				light.shadow.mapSize.width = 4096;
+				light.shadow.mapSize.height = 4096;
 				light.shadow.bias = 0;
 
 				var d = objectRadius;

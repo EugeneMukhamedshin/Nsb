@@ -1,7 +1,7 @@
 ﻿--
 -- Скрипт сгенерирован Devart dbForge Studio for MySQL, Версия 7.1.13.0
 -- Домашняя страница продукта: http://www.devart.com/ru/dbforge/mysql/studio
--- Дата скрипта: 25.08.2016 23:41:53
+-- Дата скрипта: 19.09.2016 0:26:18
 -- Версия сервера: 5.7.13-log
 -- Версия клиента: 4.1
 --
@@ -36,10 +36,11 @@ CREATE TABLE models (
   name VARCHAR(50) NOT NULL,
   obj_filename VARCHAR(255) NOT NULL,
   mtl_filename VARCHAR(255) NOT NULL,
+  add_ground INT(11) NOT NULL DEFAULT 1,
   PRIMARY KEY (id)
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 29
+AUTO_INCREMENT = 42
 AVG_ROW_LENGTH = 1820
 CHARACTER SET utf8
 COLLATE utf8_general_ci
@@ -66,16 +67,22 @@ WITH GRANT OPTION;
 -- Вывод данных для таблицы models
 --
 INSERT INTO models VALUES
-(1, 'male', 'male02.obj', 'male02_dds.mtl'),
-(2, 'male22', 'male02.obj', 'male02_dds.mtl'),
-(3, 'female', 'female02.obj', 'female02.mtl'),
-(4, 'walthead', 'WaltHead.obj', 'WaltHead.mtl'),
-(23, 'nupogodi', 'nupogodi.obj', 'nupogodi.mtl'),
-(24, 'cognac', 'cognac.obj', 'cognac.mtl'),
-(25, 'table', 'table.obj', 'table.mtl'),
-(26, 'falcon', 'falcon.obj', 'falcon.mtl'),
-(27, 'nupogodi', 'nupogodi.obj', 'nupogodi.mtl'),
-(28, 'kolibri', 'kolibri.obj', 'kolibri.mtl');
+(1, 'male', 'male02.obj', 'male02_dds.mtl', 1),
+(2, 'male22', 'male02.obj', 'male02_dds.mtl', 1),
+(3, 'female', 'female02.obj', 'female02.mtl', 1),
+(4, 'walthead', 'WaltHead.obj', 'WaltHead.mtl', 1),
+(27, 'nupogodi', 'nupogodi.obj', 'nupogodi.mtl', 1),
+(28, 'kolibri', 'kolibri.obj', 'kolibri.mtl', 1),
+(31, 'Детская площадка zl24', 'ZL-24.obj', 'ZL-24.mtl', 1),
+(33, 'zl-24_standart_mtl', 'zl-24_standart_mtl.obj', 'zl-24_standart_mtl.mtl', 1),
+(34, 'mk10', 'mk10.obj', 'mk10.mtl', 1),
+(35, 'IL-14', 'IL-14.obj', 'IL-14.mtl', 1),
+(36, 'OL-1', 'ol-01.obj', 'ol-01.mtl', 1),
+(37, 'MIF-67', 'mif-67.obj', 'mif-67.mtl', 1),
+(38, 'ZL-13', 'zl-13.obj', 'zl-13.mtl', 1),
+(39, 'zl-32_original', 'zl-32_original.obj', 'zl-32_original.mtl', 1),
+(40, 'zl-32_other', 'zl-32_other.obj', 'zl-32_other.mtl', 1),
+(41, 'zl-12_original', 'zl-12_original.obj', 'zl-12_original.mtl', 1);
 
 -- 
 -- Восстановить предыдущий режим SQL (SQL mode)
