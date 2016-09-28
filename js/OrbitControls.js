@@ -359,6 +359,19 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 	}();
 
+	this.zoomIn = function() { zoomIn(); }
+	this.zoomOut = function() { zoomOut(); }
+
+	function zoomIn() {
+		dollyOut(getZoomScale());
+		scope.update();
+	}
+
+	function zoomOut() {
+		dollyIn(getZoomScale());
+		scope.update();
+	}
+
 	function dollyIn( dollyScale ) {
 
 		if ( scope.object instanceof THREE.PerspectiveCamera ) {

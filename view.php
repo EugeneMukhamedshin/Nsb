@@ -4,14 +4,12 @@
 
 <?php
 
+	include 'config.php';
+
 	$id = intval($_GET['id']);
-    $servername = "localhost";
-    $username = "root";
-    $password = "root";
-    $dbname = "nsb";
 
     // Create connection
-    $conn = new mysqli($servername, $username, $password, $dbname);
+    $conn = new mysqli($serverName, $username, $password, $dbName);
     // Check connection
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
@@ -32,7 +30,7 @@
 
 ?>
 
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/html">
 	<head>
 		<title>three.js webgl - OBJLoader + MTLLoader</title>
 		<meta charset="utf-8">
@@ -49,16 +47,15 @@
 				overflow: hidden;
 			}
 			#info {
-				position: absolute;
+				position: relative;
 				border: 0px;
 				left: 310px;
-				// width: calc(100% - 310px);
-				// height: 100%;
 				width: 500px;
-				height: 350px;
+				height: 35px;
 				overflow: auto;
 				margin: 10px;
-				z-index: 100;
+				z-index: 200;
+				text-align: center;
 			}
 			#panel {
 				position: fixed;
@@ -78,17 +75,36 @@
 				font-size: 25px;
 				font-weight: normal;
 			}
-			#view {
+			#view-container {
 				position: absolute;
 				border: 1px;
 				left: 310px;
-				// width: calc(100% - 310px);
-				// height: 100%;
 				width: 850px;
 				height: 510px;
 				overflow: auto;
 				margin: 10px;
-				z-index: 1000;
+				z-index: 100;
+			}
+			#view {
+				position: relative;
+				overflow: auto;
+				margin: 10px;
+				width: 90%;
+				height: 90%;
+			}
+			#btnZoomIn {
+				position: absolute;
+				left: 10px;
+				top: 10px;
+				width: 50px;
+				height: 50px;
+			}
+			#btnZoomOut {
+				position: absolute;
+				left: 70px;
+				top: 10px;
+				width: 50px;
+				height: 50px;
 			}
 			#logo {
 				width: 280px;
@@ -104,9 +120,12 @@
 			<h1><?= $name ?></h1>
 		</div>
 
-		<div id="view"></div>
-
-		<span id="info"></span>
+		<div id="view-container">
+			<span id="info"></span>
+			<div id="view"></div>
+			<input type="button" id="btnZoomIn">
+			<input type="button" id="btnZoomOut">
+		</div>
 
 		<script src="js/three.js"></script>
 
@@ -125,7 +144,7 @@
 			if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
 			var container, stats;
-			var camera, scene, renderer;
+			var camera, scene, renderer, controls;
 
 			var infoBox = document.getElementById("info");
 
@@ -133,6 +152,14 @@
 			
 			loadObject();
 			animate();
+
+			document.getElementById('btnZoomIn').addEventListener('click', function () {
+				controls.zoomIn();
+			});
+
+			document.getElementById('btnZoomOut').addEventListener('click', function () {
+				controls.zoomOut();
+			});
 
 			function loadObject() {
 				var onProgress = function ( xhr ) {
@@ -202,7 +229,8 @@
 					init( object );
 					object = null;
 					infoBox.innerText = 'Scene initialized ' + (new Date() - start);
-				});			
+					infoBox.style.visibility = 'hidden';
+				});
 			}
 
 			function init(object) {
@@ -323,7 +351,7 @@
 				renderer.shadowMap.Type = THREE.PCFShadowMap;
 
 				// controls
-				var controls = new THREE.OrbitControls( camera, renderer.domElement );
+				controls = new THREE.OrbitControls( camera, renderer.domElement );
 				controls.maxPolarAngle = Math.PI * 0.5;
 				controls.minDistance = objectRadius * 1.2;
 				controls.maxDistance = requiredDistToObject * 1.6;
