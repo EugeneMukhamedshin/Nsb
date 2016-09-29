@@ -20,45 +20,45 @@
             <input type="file" multiple="" id="file-input" text="Выбрать файлы и загрузить">
         </label>-->
 
-        <span id='lb_add' href='addmodel.php'>Добавить</span>&nbsp;&nbsp;
-        <span id='lb_delete' href=''>Удалить</span>
+        <a id='lb_add' href='add.php'>Добавить</a>&nbsp;&nbsp;
+        <a id='lb_delete' href='#'>Удалить</a>
 
         <form action='delete.php' method='post' id='frm'>
-        <table>
-            <tr style='font-weight: bold;'>
-                <td style='width: 50px;'/>
-                <td style='width: 50px;'>ИД</th>
-                <td style='width: 500px;'>Наименование</th>
-            </tr>
-        <?php
+            <table>
+                <tr style='font-weight: bold;'>
+                    <td style='width: 50px;'/>
+                    <td style='width: 50px;'>ИД</th>
+                    <td style='width: 500px;'>Наименование</th>
+                </tr>
+                <?php
 
-            include 'config.php';
+                    include 'config.php';
 
-            // Create connection
-            $conn = new mysqli($serverName, $username, $password, $dbName);
-            // Check connection
-            if ($conn->connect_error) {
-                die("Connection failed: " . $conn->connect_error);
-            } 
+                    // Create connection
+                    $conn = new mysqli($serverName, $username, $password, $dbName);
+                    // Check connection
+                    if ($conn->connect_error) {
+                        die("Connection failed: " . $conn->connect_error);
+                    }
 
-            $sql = "SELECT id, name FROM models";
-            $result = $conn->query($sql);
+                    $sql = "SELECT id, name FROM models";
+                    $result = $conn->query($sql);
 
-            if ($result->num_rows > 0) {
-                // output data of each row
-                while($row = $result->fetch_assoc()) {
-                    echo "<tr>";
-                    echo "  <td><input type='checkbox' name='cb_". $row["id"] ."'/></td>";
-                    echo "  <td><a href=\"view.php?id=" . $row["id"] . "\">". $row["id"]. "</a></td>";
-                    echo "  <td><a href=\"view.php?id=" . $row["id"] . "\">". $row["name"] . "</a></td>";
-                    echo "</tr>";
-                }
-            } else {
-                echo "0 results";
-            }
-            $conn->close();
-        ?>
-        </table>
+                    if ($result->num_rows > 0) {
+                        // output data of each row
+                        while($row = $result->fetch_assoc()) {
+                            echo "<tr>";
+                            echo "  <td><input type='checkbox' name='cb_". $row["id"] ."'/></td>";
+                            echo "  <td><a href=\"view.php?id=" . $row["id"] . "\">". $row["id"]. "</a></td>";
+                            echo "  <td><a href=\"view.php?id=" . $row["id"] . "\">". $row["name"] . "</a></td>";
+                            echo "</tr>";
+                        }
+                    } else {
+                        echo "0 results";
+                    }
+                    $conn->close();
+                ?>
+            </table>
         </form>
 
         <script type="text/javascript">

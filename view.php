@@ -86,8 +86,10 @@
 				z-index: 100;
 			}
 			#view {
-				position: relative;
+				position: absolute;
 				overflow: auto;
+				left: 0;
+				top: 0;
 				margin: 10px;
 				width: 90%;
 				height: 90%;
@@ -96,15 +98,37 @@
 				position: absolute;
 				left: 10px;
 				top: 10px;
-				width: 50px;
-				height: 50px;
+				width: 30px;
+				height: 30px;
+				background-image: url("textures/zoom-in.png");
+				background-size: cover;
 			}
 			#btnZoomOut {
 				position: absolute;
-				left: 70px;
+				left: 40px;
 				top: 10px;
-				width: 50px;
-				height: 50px;
+				width: 30px;
+				height: 30px;
+				background-image: url("textures/zoom-out.png");
+				background-size: cover;
+			}
+			#btnRotateLeft {
+				position: absolute;
+				left: 10px;
+				top: 40px;
+				width: 30px;
+				height: 30px;
+				background-image: url("textures/update-arrow-left.png");
+				background-size: cover;
+			}
+			#btnRotateRight {
+				position: absolute;
+				left: 40px;
+				top: 40px;
+				width: 30px;
+				height: 30px;
+				background-image: url("textures/update-arrow-right.png");
+				background-size: cover;
 			}
 			#logo {
 				width: 280px;
@@ -125,6 +149,8 @@
 			<div id="view"></div>
 			<input type="button" id="btnZoomIn">
 			<input type="button" id="btnZoomOut">
+			<input type="button" id="btnRotateLeft">
+			<input type="button" id="btnRotateRight">
 		</div>
 
 		<script src="js/three.js"></script>
@@ -143,23 +169,29 @@
 
 			if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
-			var container, stats;
+			var container;
 			var camera, scene, renderer, controls;
 
 			var infoBox = document.getElementById("info");
 
 			var start = new Date();
+			var zoomIn, zoomOut, rotateLeft, rotateRight;
 			
 			loadObject();
 			animate();
 
-			document.getElementById('btnZoomIn').addEventListener('click', function () {
-				controls.zoomIn();
-			});
-
-			document.getElementById('btnZoomOut').addEventListener('click', function () {
-				controls.zoomOut();
-			});
+			document.getElementById('btnZoomIn').onmousedown = function () { zoomIn = true;	zoomOut = false; };
+			document.getElementById('btnZoomIn').onmouseup = function () { zoomIn = false; };
+			document.getElementById('btnZoomIn').onmouseout = function () { zoomIn = false; };
+			document.getElementById('btnZoomOut').onmousedown = function () { zoomOut = true; zoomIn = false;  };
+			document.getElementById('btnZoomOut').onmouseup = function () { zoomOut = false; };
+			document.getElementById('btnZoomOut').onmouseout = function () { zoomOut = false; };
+			document.getElementById('btnRotateLeft').onmousedown = function () { rotateLeft = true; rotateRight = false; };
+			document.getElementById('btnRotateLeft').onmouseup = function () { rotateLeft = false; };
+			document.getElementById('btnRotateLeft').onmouseout = function () { rotateLeft = false; };
+			document.getElementById('btnRotateRight').onmousedown = function () { rotateRight = true; rotateLeft = false; };
+			document.getElementById('btnRotateRight').onmouseup = function () { rotateRight = false; };
+			document.getElementById('btnRotateRight').onmouseout = function () { rotateRight = false; };
 
 			function loadObject() {
 				var onProgress = function ( xhr ) {
@@ -250,25 +282,23 @@
  				bbox = new THREE.Box3().setFromObject( object );
 				bsphere = bbox.getBoundingSphere();
 
-				var fovG = 45
- 				var oL,cL; 
+				var fovG = 45;
+ 				var oL;
  				var FOV = fovG * (Math.PI / 180); 
  				var objectLocation = oL = bsphere.center;
- 				var objectRadius = cf = bsphere.radius;
- 				var cameraLocation = cL = {x : 60000, y : 30000, z : 100000};
- 				var farPlane = 10000;
- 				var nearPlane = 9999;
+ 				var objectRadius = bsphere.radius;
+ 				var cL = {x : 60000, y : 30000, z : 100000};
 
-				var currentDistToObject = ac = Math.sqrt(Math.pow(oL.x - cL.x, 2) + Math.pow(oL.y - cL.y, 2) + Math.pow(oL.z - cL.z, 2));
-				var requiredDistToObject = dc = cf * 0.8 / Math.sin(FOV / 2);
+				var currentDistToObject = Math.sqrt(Math.pow(oL.x - cL.x, 2) + Math.pow(oL.y - cL.y, 2) + Math.pow(oL.z - cL.z, 2));
+				var requiredDistToObject = objectRadius * 0.8 / Math.sin(FOV / 2);
 				var coeff = requiredDistToObject / currentDistToObject;
 
 				cL.x *= coeff;
 				cL.y *= coeff;
 				cL.z *= coeff;
 
-				nearPlane = (requiredDistToObject - objectRadius) * 0.1; 
-				farPlane = requiredDistToObject + objectRadius * 4; 
+				var nearPlane = (requiredDistToObject - objectRadius) * 0.1;
+				var farPlane = requiredDistToObject + objectRadius * 4;
 
 				object.position = objectLocation;
 				object.position.x = -bsphere.center.x;
@@ -306,8 +336,7 @@
 
 				// lights
 
-				var light, materials;
-
+				var light;
 				scene.add( new THREE.AmbientLight( 0x666666 ) );
 
 				light = new THREE.DirectionalLight( 0xdfebff, 2 );
@@ -368,6 +397,14 @@
 			}
 
 			function animate() {
+				if (zoomIn)
+					controls.zoomIn(0.99);
+				if (zoomOut)
+					controls.zoomOut(0.99);
+				if (rotateLeft)
+					controls.rotateLeft(-0.017);
+				if (rotateRight)
+					controls.rotateLeft(0.017);
 				requestAnimationFrame( animate );
 				render();
 			}

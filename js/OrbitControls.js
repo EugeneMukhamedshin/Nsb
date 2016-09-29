@@ -276,6 +276,11 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 	}
 
+	this.rotateLeft = function (angle) {
+		rotateLeft(angle);
+		scope.update();
+	}
+
 	function rotateLeft( angle ) {
 
 		sphericalDelta.theta -= angle;
@@ -359,16 +364,16 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 	}();
 
-	this.zoomIn = function() { zoomIn(); }
-	this.zoomOut = function() { zoomOut(); }
+	this.zoomIn = function(scale) { zoomIn(scale); }
+	this.zoomOut = function(scale) { zoomOut(scale); }
 
-	function zoomIn() {
-		dollyOut(getZoomScale());
+	function zoomIn(scale) {
+		dollyOut(scale);
 		scope.update();
 	}
 
-	function zoomOut() {
-		dollyIn(getZoomScale());
+	function zoomOut(scale) {
+		dollyIn(scale);
 		scope.update();
 	}
 
