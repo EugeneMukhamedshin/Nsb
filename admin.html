@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Административная панель</title>
+    <script src="dist/angular/angular.js"></script>
+    <script src="js/admin.js"></script>
+    <script src="dist/underscore-min.js"></script>
+    <style>
+        .selected-true {
+            background-color: #cccccc;
+        }
+    </style>
+</head>
+<body>
+<div ng-app="adminApp" ng-controller="adminController as admin">
+    <table>
+        <tr style='font-weight: bold;'>
+            <th style='width: 50px;'></th>
+            <th style='width: 50px; text-align: left'>ИД</th>
+            <th style='width: 150px; text-align: left'>Наименование</th>
+            <th style='width: 150px; text-align: left'>Файл OBJ</th>
+            <th style='width: 150px; text-align: left'>Файл MTL</th>
+        </tr>
+        <tr ng-repeat="model in admin.models" class="selected-{{model.IsSelected}}">
+            <td><input type='checkbox' ng-model="model.IsSelected"/></td>
+            <td><span>{{model.Model.Id}}</span></td>
+            <td><a ng-href="view.php?id={{model.Model.Id}}">{{model.Model.Name}}</a></td>
+            <td><span>{{model.Model.ObjFileName}}</span></td>
+            <td><span>{{model.Model.MtlFileName}}</span></td>
+        </tr>
+    </table>
+    <br>
+    <br>
+    <button ng-click="admin.PrevPage()">Назад</button>
+    <button ng-click="admin.NextPage()">Вперед</button>
+    <button ng-click="admin.DeleteSelected()">Удалить выбранные</button>
+</div>
+
+</body>
+</html>

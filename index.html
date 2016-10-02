@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Модели</title>
+    <script src="dist/angular/angular.js"></script>
+</head>
+<body>
+<div ng-app="modelsApp" ng-controller="modelsController">
+    <div ng-repeat="model in models">
+        <a ng-href="view.php?id={{model.Id}}">{{model.Name}}</a><br>
+    </div>
+</div>
+<script>
+    var app = angular.module('modelsApp', []);
+    app.controller('modelsController', function ($scope, $http) {
+        $http.get("models.php").then(function (response) {
+            $scope.models = response.data.models;
+        })
+    });
+</script>
+</body>
+</html>
