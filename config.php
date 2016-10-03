@@ -1,6 +1,9 @@
 <?php
-// DB
-    $serverName = "localhost";
-    $username = "root";
-    $password = "root";
-    $dbName = "nsb";
+
+class config
+{
+    public $serverName = "localhost";
+    public $username = "root";
+    public $password = "root";
+    public $dbName = "nsb";
+}

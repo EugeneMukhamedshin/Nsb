@@ -1,40 +1,84 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="adminApp">
 <head>
     <meta charset="UTF-8">
     <title>Административная панель</title>
     <script src="dist/angular/angular.js"></script>
+    <script src="dist/underscore/underscore-min.js"></script>
+    <script src="js/model.js"></script>
     <script src="js/admin.js"></script>
-    <script src="dist/underscore-min.js"></script>
+    <script src="dist/jszip/jszip.js"></script>
     <style>
-        .selected-true {
+        .panel-controls {
+            position: absolute;
+            top: 10px;
+            height: 40px;
+            left: 10px;
+            width: 400px;
+        }
+
+        .panel-controls button {
+            height: 100%;
+            width: 80px;
+        }
+
+        .panel-model-list {
+            position: absolute;
+            top: 60px;
+            left: 10px;
+            width: 400px;
+        }
+
+        .panel-navigation {
+            position: absolute;
+            top: 460px;
+            left: 10px;
+        }
+
+        .panel-selected-model {
+            position: absolute;
+            top: 10px;
+            left: 450px;
+        }
+
+        .item {
+            height: 32px;
+        }
+
+        .item-selected-true {
             background-color: #cccccc;
         }
     </style>
 </head>
 <body>
-<div ng-app="adminApp" ng-controller="adminController as admin">
-    <table>
-        <tr style='font-weight: bold;'>
-            <th style='width: 50px;'></th>
-            <th style='width: 50px; text-align: left'>ИД</th>
-            <th style='width: 150px; text-align: left'>Наименование</th>
-            <th style='width: 150px; text-align: left'>Файл OBJ</th>
-            <th style='width: 150px; text-align: left'>Файл MTL</th>
-        </tr>
-        <tr ng-repeat="model in admin.models" class="selected-{{model.IsSelected}}">
-            <td><input type='checkbox' ng-model="model.IsSelected"/></td>
-            <td><span>{{model.Model.Id}}</span></td>
-            <td><a ng-href="view.php?id={{model.Model.Id}}">{{model.Model.Name}}</a></td>
-            <td><span>{{model.Model.ObjFileName}}</span></td>
-            <td><span>{{model.Model.MtlFileName}}</span></td>
-        </tr>
-    </table>
-    <br>
-    <br>
-    <button ng-click="admin.PrevPage()">Назад</button>
-    <button ng-click="admin.NextPage()">Вперед</button>
-    <button ng-click="admin.DeleteSelected()">Удалить выбранные</button>
+<div ng-controller="adminController as admin">
+    <div class="panel-controls">
+        <button ng-click="admin.AddModel()">Добавить</button>
+        <button ng-click="admin.DeleteSelected()">Удалить</button>
+    </div>
+    <div class="panel-model-list">
+        <table border="1px">
+            <tr style='font-weight: bold;'>
+                <th style='width: 50px;'></th>
+                <th style='width: 50px; text-align: left'>ИД</th>
+                <th style='width: 200px; text-align: left'>Наименование</th>
+            </tr>
+            <tr ng-repeat="model in admin.models" class="item item-selected-{{model.IsSelected}}" ng-click="admin.SelectModel(model)">
+                <td><input type='checkbox' ng-model="model.IsChecked"/></td>
+                <td><span>{{model.Model.Id}}</span></td>
+                <td><a ng-href="view.php?id={{model.Model.Id}}">{{model.Model.Name}}</a></td>
+            </tr>
+        </table>
+    </div>
+    <div class="panel-navigation">
+        <button ng-click="admin.PrevPage()" ng-disabled="admin.IsFirstPage">Назад</button>
+        <button ng-click="admin.NextPage()" ng-disabled="admin.IsLastPage">Вперед</button>
+    </div>
+    <div class="panel-selected-model">
+        <input id="file-input" type="file" multiple onchange="angular.element(this).scope().HandleFiles(this)">
+        <b>Ид: </b><span>{{admin.SelectedModel.Model.Id}}</span><br>
+        <b>Наименование: </b><span>{{admin.SelectedModel.Model.Name}}</span><br>
+    </div>
 </div>
 
 </body>

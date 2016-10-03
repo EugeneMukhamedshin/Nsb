@@ -1,43 +1,67 @@
 angular.module('adminApp', [])
     .controller('adminController', function ($scope, $http) {
-        var adminController = this;
+        var admCtrl = this;
 
-        adminController.Page = 1;
-        adminController.PageSize = 5;
+        admCtrl.Page = 1;
+        admCtrl.IsLastPage = false;
+        admCtrl.IsFirstPage = false;
+        admCtrl.PageSize = 10;
+        admCtrl.SelectedModel = {};
 
-        adminController.Refresh = function (page) {
-            adminController.models = [];
-            $http.get("models.php?page=" + page).then(function (response) {
+        admCtrl.Refresh = function () {
+            admCtrl.models = [];
+            $http.get("models.php?page=" + admCtrl.Page + "&pageSize=" + admCtrl.PageSize).then(function (response) {
                 console.log(response);
-                response.data.models.forEach(function (model) {
-                    adminController.models.push(
-                        {
-                            IsSelected: false,
-                            Model: model,
-                            Select: function () {
-                                adminController.models.forEach(function (model) {
-                                    model.IsSelected = false;
-                                });
-                                this.IsSelected = true;
-                            }
-                        });
+                var models = response.data.models;
+                admCtrl.IsFirstPage = admCtrl.Page == 1;
+                admCtrl.IsLastPage = models.length != admCtrl.PageSize + 1;
+                if (!admCtrl.IsLastPage)
+                    models.pop();
+                models.forEach(function (model) {
+                    var vm = new viewModel(model);
+                    admCtrl.models.push(vm);
                 });
+                if (models.length > 0)
+                    admCtrl.SelectModel(admCtrl.models[0]);
             });
         };
 
-        adminController.PrevPage = function () {
-            adminController.Page--;
-            adminController.Refresh(adminController.Page);
+        admCtrl.PrevPage = function () {
+            if (admCtrl.Page == 1)
+                return;
+            admCtrl.Page--;
+            admCtrl.Refresh(admCtrl.Page);
         };
 
-        adminController.NextPage = function () {
-            adminController.Page++;
-            adminController.Refresh(adminController.Page);
+        admCtrl.NextPage = function () {
+            if (admCtrl.models.length < admCtrl.PageSize)
+                return;
+            admCtrl.Page++;
+            admCtrl.Refresh(admCtrl.Page);
         };
 
-        adminController.DeleteSelected = function () {
-            var selected = _.filter(adminController.models, function (model) {
-                return model.IsSelected;
+        admCtrl.SelectModel = function (model) {
+            if (admCtrl.SelectedModel)
+                admCtrl.SelectedModel.IsSelected = false;
+            admCtrl.SelectedModel = model;
+            admCtrl.SelectedModel.IsSelected = true;
+        };
+
+        admCtrl.AddModel = function() {
+            $http
+                .get("add.php")
+                .then(function(response) {
+                    console.log(response);
+                    var vm = new viewModel(response.data.model);
+                    admCtrl.models.shift();
+                    admCtrl.models.push(vm);
+                    admCtrl.SelectModel(vm);
+                })
+        };
+
+        admCtrl.DeleteSelected = function () {
+            var selected = _.filter(admCtrl.models, function (model) {
+                return model.IsChecked;
             });
             var config = {
                 headers: {
@@ -47,16 +71,44 @@ angular.module('adminApp', [])
             $http
                 .post("delete.php", selected, config)
                 .success(function () {
-                    adminController.Refresh();
+                    if (selected.length == admCtrl.models.length && admCtrl.Page > 1)
+                        admCtrl.Page--;
+                    admCtrl.Refresh();
                 })
                 .error(function () {
-                    adminController.Refresh();
+                    admCtrl.Refresh();
                 });
         };
 
-        adminController.AddModel = function () {
+        function UploadBlob(fileName, blob) {
+            console.log('UploadBlob ' + fileName);
+        }
 
+        function UploadFile(file) {
+            console.log('UploadFile ' + file.name);
+        }
+
+        function HandleFile(file) {
+            if (file.name.indexOf('.obj') != -1) {
+                var zip = JSZip();
+                zip.file(file.name, file);
+                zip.generateAsync({type:"blob"})
+                    .then(function (blob) {
+                        UploadBlob(file.name, blob);
+                    });
+            }
+            else {
+                UploadFile(file);
+            }
+        }
+
+        $scope.HandleFiles = function (input) {
+            console.log(input.files);
+
+            for (var i = 0; i < input.files.length; i++) {
+                HandleFile(input.files[i]);
+            }
         };
 
-        adminController.Refresh(adminController.Page);
+        admCtrl.Refresh();
     });

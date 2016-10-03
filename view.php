@@ -153,17 +153,14 @@
 			<input type="button" id="btnRotateRight">
 		</div>
 
-		<script src="js/three.js"></script>
-
-		<script src="js/DDSLoader.js"></script>
-		<script src="js/MTLLoader.js"></script>
-		<script src="js/OBJLoader.js"></script>
-
-		<script src="js/OrbitControls.js"></script>
-		<script src="js/Detector.js"></script>
-		<script src="js/stats.min.js"></script>
-		<script src="dist/jszip.js"></script>
-		<script src="dist/jszip-utils.js"></script>
+		<script src="dist/jszip/jszip.js"></script>
+		<script src="dist/jszip/jszip-utils.js"></script>
+		<script src="dist/threejs/DDSLoader.js"></script>
+		<script src="dist/threejs/Detector.js"></script>
+		<script src="dist/threejs/MTLLoader.js"></script>
+		<script src="dist/threejs/OBJLoader.js"></script>
+		<script src="dist/threejs/OrbitControls.js"></script>
+		<script src="dist/threejs/three.js"></script>
 
 		<script>
 
