@@ -1,5 +1,5 @@
-angular.module('adminApp', [])
-    .controller('adminController', function ($scope, $http) {
+angular.module('adminApp', ['angularFileUpload'])
+    .controller('adminController', ['$scope', '$http', 'FileUploader', function ($scope, $http, FileUploader) {
         var admCtrl = this;
 
         admCtrl.Page = 1;
@@ -7,6 +7,45 @@ angular.module('adminApp', [])
         admCtrl.IsFirstPage = false;
         admCtrl.PageSize = 10;
         admCtrl.SelectedModel = {};
+        admCtrl.IsWorking = false;
+        admCtrl.ZipProgress = 0;
+
+        var uploader = $scope.uploader = new FileUploader({
+            url: 'upload.php'
+        });
+
+        uploader.onAfterAddingFile = function (fileItem) {
+            console.info('onAfterAddingFile', fileItem);
+            fileItem.formData.push({id: admCtrl.SelectedModel.Model.Id});
+            if (fileItem.file.name.indexOf('.obj') != -1) {
+                var zip = new JSZip();
+                zip.file(fileItem.file.name, fileItem._file);
+                admCtrl.IsWorking = true;
+                zip.generateAsync({type: 'blob', compression: 'DEFLATE'}, function updateCallback(metadata) {
+                    $scope.$apply(function () {
+                        admCtrl.ZipProgress = metadata.percent.toFixed(2);
+                        console.log(admCtrl.ZipProgress + '%');
+                    });
+                }).then(function (blob) {
+                    fileItem._file = blob;
+                    $scope.$apply(function () {
+                        admCtrl.IsWorking = false;
+                    });
+                });
+            }
+        };
+
+        uploader.onBeforeUploadItem = function (fileItem) {
+            console.info(fileItem);
+        };
+
+        uploader.onCompleteItem = function (fileItem, response, status, headers) {
+            admCtrl.IsWorking = !uploader.getNotUploadedItems().length;
+        };
+
+        uploader.onCompleteAll = function () {
+            admCtrl.IsWorking = !uploader.getNotUploadedItems().length;
+        };
 
         admCtrl.Refresh = function () {
             admCtrl.models = [];
@@ -47,10 +86,10 @@ angular.module('adminApp', [])
             admCtrl.SelectedModel.IsSelected = true;
         };
 
-        admCtrl.AddModel = function() {
+        admCtrl.AddModel = function () {
             $http
                 .get("add.php")
-                .then(function(response) {
+                .then(function (response) {
                     console.log(response);
                     var vm = new viewModel(response.data.model);
                     admCtrl.models.shift();
@@ -81,18 +120,31 @@ angular.module('adminApp', [])
         };
 
         function UploadBlob(fileName, blob) {
-            console.log('UploadBlob ' + fileName);
+            console.log('Uploading Blob ' + fileName);
+            var fd = new FormData();
+            fd.append('id', admCtrl.SelectedModel.Id);
+            fd.append('blob', blob, fileName);
+            var request = new XMLHttpRequest();
+            request.open('POST', 'upload.php', true);
+            request.onprogress = function (evt) {
+                console.log(evt);
+            };
+            request.onload = function (evt) {
+                console.log(evt);
+                console.log('Blob ' + fileName + ' uploaded succesfully');
+            };
+            request.send(fd);
         }
 
         function UploadFile(file) {
-            console.log('UploadFile ' + file.name);
+            console.log('Uploading File ' + file.name);
         }
 
         function HandleFile(file) {
             if (file.name.indexOf('.obj') != -1) {
-                var zip = JSZip();
+                var zip = new JSZip();
                 zip.file(file.name, file);
-                zip.generateAsync({type:"blob"})
+                zip.generateAsync({type: "blob"})
                     .then(function (blob) {
                         UploadBlob(file.name, blob);
                     });
@@ -111,4 +163,4 @@ angular.module('adminApp', [])
         };
 
         admCtrl.Refresh();
-    });
+    }]);

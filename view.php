@@ -8,8 +8,9 @@
 
 	$id = intval($_GET['id']);
 
+	$config = new config();
     // Create connection
-    $conn = new mysqli($serverName, $username, $password, $dbName);
+    $conn = new mysqli($config->serverName, $config->username, $config->password, $config->dbName);
     // Check connection
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
@@ -155,12 +156,12 @@
 
 		<script src="dist/jszip/jszip.js"></script>
 		<script src="dist/jszip/jszip-utils.js"></script>
+		<script src="dist/threejs/three.js"></script>
 		<script src="dist/threejs/DDSLoader.js"></script>
 		<script src="dist/threejs/Detector.js"></script>
 		<script src="dist/threejs/MTLLoader.js"></script>
 		<script src="dist/threejs/OBJLoader.js"></script>
 		<script src="dist/threejs/OrbitControls.js"></script>
-		<script src="dist/threejs/three.js"></script>
 
 		<script>
 

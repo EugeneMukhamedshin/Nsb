@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" ng-app="adminApp">
 <head>
     <meta charset="UTF-8">
@@ -8,6 +8,7 @@
     <script src="js/model.js"></script>
     <script src="js/admin.js"></script>
     <script src="dist/jszip/jszip.js"></script>
+    <script src="dist/angular/angular-file-upload.js"></script>
     <style>
         .panel-controls {
             position: absolute;
@@ -39,6 +40,11 @@
             position: absolute;
             top: 10px;
             left: 450px;
+        }
+
+        .progress-bar {
+            background-color: cadetblue;
+            height: 24px;
         }
 
         .item {
@@ -75,10 +81,31 @@
         <button ng-click="admin.NextPage()" ng-disabled="admin.IsLastPage">Вперед</button>
     </div>
     <div class="panel-selected-model">
-        <input id="file-input" type="file" multiple onchange="angular.element(this).scope().HandleFiles(this)">
         <b>Ид: </b><span>{{admin.SelectedModel.Model.Id}}</span><br>
         <b>Наименование: </b><span>{{admin.SelectedModel.Model.Name}}</span><br>
-    </div>
+        <!--<input id="file-input" type="file" multiple onchange="angular.element(this).scope().HandleFiles(this)">-->
+        <label>Выберите OBJ файл</label>
+        <input id="file-input" type="file" nv-file-select uploader="uploader">
+        <div class="progress" style="">
+            <div class="progress-bar" ng-style="{ 'width': admin.ZipProgress + '%' }" style="width: 0%;"></div>
+        </div>
+        <div>
+            <div>
+                Queue progress:
+                <div class="progress" style="">
+                    <div class="progress-bar" role="progressbar" ng-style="{ 'width': uploader.progress + '%' }" style="width: 0%;"></div>
+                </div>
+            </div>
+            <button type="button" class="btn btn-success btn-s" ng-click="uploader.uploadAll()" ng-disabled="admin.IsWorking" disabled="disabled">
+                <span class="glyphicon glyphicon-upload"></span> Upload all
+            </button>
+            <button type="button" class="btn btn-warning btn-s" ng-click="uploader.cancelAll()" ng-disabled="!uploader.isUploading" disabled="disabled">
+                <span class="glyphicon glyphicon-ban-circle"></span> Cancel all
+            </button>
+            <button type="button" class="btn btn-danger btn-s" ng-click="uploader.clearQueue()" ng-disabled="!uploader.queue.length" disabled="disabled">
+                <span class="glyphicon glyphicon-trash"></span> Remove all
+            </button>
+        </div>    </div>
 </div>
 
 </body>

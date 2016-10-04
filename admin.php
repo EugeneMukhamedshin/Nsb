@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 /**
  * Created by PhpStorm.
@@ -58,6 +58,29 @@ class admin
         $id = $conn->insert_id;
         $conn->close();
         return $this->validateModel($id);
+    }
+
+    public function addFilesToModel($files, $id)
+    {
+//        $conn = $this->createConnection();
+//        $sql = "INSERT INTO models (name, obj_filename, mtl_filename) VALUES ('" . $model_name . "', '" . $obj_filename ."', '" . $mtl_filename . "')";
+//        $result = $conn->query($sql);
+
+//        $id = $conn->insert_id;
+
+        $error = '';
+
+        $dirName = 'content/' . $id;
+        if (!file_exists($dirName))
+            mkdir($dirName);
+
+        foreach ($files['name'] as $i => $name) {
+            if (strlen($files['name'][$i]) > 1) {
+                if (!move_uploaded_file($files['tmp_name'][$i], 'content/' . $id . '/' . $name)) {
+                    $error = 'unable to move file into content folder';
+                }
+            }
+        }
     }
 
     public function validateModel($id)
