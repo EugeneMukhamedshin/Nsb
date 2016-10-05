@@ -1,5 +1,7 @@
 ﻿<?php
 
+include "config.php";
+
 /**
  * Created by PhpStorm.
  * User: Evgeniy
@@ -10,9 +12,9 @@ class admin
 {
     private $config = null;
 
-    public function init($config)
+    function __construct()
     {
-        $this->config = $config;
+        $this->config = new config();
     }
 
     private function createConnection()
@@ -49,6 +51,33 @@ class admin
         return $retVal;
     }
 
+    public function getModelFiles($modelId)
+    {
+        $conn = $this->createConnection();
+        $sql = "SELECT id, model_id, file_name, translit_file_name, file_type, is_valid FROM model_files WHERE model_id = " . $modelId;
+
+        $result = $conn->query($sql);
+
+        $retVal = '{"modelFiles": [';
+        $first = true;
+        // output data of each row
+        while ($row = $result->fetch_assoc()) {
+            if (!$first)
+                $retVal = $retVal . ",";
+            $first = false;
+            $retVal = $retVal .
+                '{"Id":"' . $row['id'] . '", 
+                "ModelId":"' . $row['modelId'] . '", 
+                "FileName":"' . $row['file_name'] . '", 
+                "TranslitFileName":"' . $row['translit_file_name'] . '", 
+                "FileType":"' . $row['file_type'] . '", 
+                "IsValid":"' . $row['is_valid'] . '"}';
+        }
+        $retVal = $retVal . "]}";
+        $conn->close();
+        return $retVal;
+    }
+
     public function addModel()
     {
         $conn = $this->createConnection();
@@ -60,27 +89,67 @@ class admin
         return $this->validateModel($id);
     }
 
-    public function addFilesToModel($files, $id)
+    public function addFileToModel($modelId, $fileName, $trFileName)
     {
-//        $conn = $this->createConnection();
-//        $sql = "INSERT INTO models (name, obj_filename, mtl_filename) VALUES ('" . $model_name . "', '" . $obj_filename ."', '" . $mtl_filename . "')";
-//        $result = $conn->query($sql);
+        $fileType = 3; // resource file
+        if (substr($fileName, -3) == 'obj')
+            $fileType = 1; // obj file
+        if (substr($fileName, -3) == 'mtl')
+            $fileType = 2; // mtl file
+        $conn = $this->createConnection();
+        $sql = "DELETE FROM model_files WHERE translit_file_name = '" . $trFileName . "' AND model_id = " . $modelId;
+        $conn->query($sql);
+        $sql = "
+INSERT INTO model_files
+(
+  model_id
+ ,file_name
+ ,translit_file_name
+ ,file_type
+)
+VALUES
+(
+  " . $modelId . "
+ ,'". $fileName ."'
+ ,'". $trFileName ."'
+ ,". $fileType ."
+);";
+        $conn->query($sql);
+        $id = $conn->insert_id;
+        $conn->close();
+        return $id;
 
-//        $id = $conn->insert_id;
 
-        $error = '';
+        $errorMsg = '';
+        $dirName = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . $modelId;
+        if (strpos($fileName, '.obj') !== false) {
+            $zip = new ZipArchive();
+            $res = $zip->open($dirName . DIRECTORY_SEPARATOR . $fileName);
+            if ($res === TRUE) {
+                $objFile = $dirName . DIRECTORY_SEPARATOR . 'unzipped';
+                $zip->extractTo($objFile);
+                $zip->close();
 
-        $dirName = 'content/' . $id;
-        if (!file_exists($dirName))
-            mkdir($dirName);
-
-        foreach ($files['name'] as $i => $name) {
-            if (strlen($files['name'][$i]) > 1) {
-                if (!move_uploaded_file($files['tmp_name'][$i], 'content/' . $id . '/' . $name)) {
-                    $error = 'unable to move file into content folder';
+                $mtlLibFileName = '';
+                $handle = fopen($objFile . DIRECTORY_SEPARATOR . $fileName, "r");
+                if ($handle) {
+                    while (($line = fgets($handle)) !== false) {
+                        if (strpos($line, 'mtllib') !== false) {
+                            $mtlLibFileName = str_replace('mtllib ', '', trim($line));
+                            break;
+                        }
+                    }
+                    fclose($handle);
+                } else {
+                    $errorMsg = 'Can not open file';
                 }
+            } else {
+                $errorMsg = 'Not zip';
             }
         }
+        $answer = array('mtlLib' => $mtlLibFileName, 'error' => $errorMsg);
+        $json = json_encode($answer);
+        echo $json;
     }
 
     public function validateModel($id)

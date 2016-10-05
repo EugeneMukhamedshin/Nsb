@@ -80,32 +80,47 @@
         <button ng-click="admin.PrevPage()" ng-disabled="admin.IsFirstPage">Назад</button>
         <button ng-click="admin.NextPage()" ng-disabled="admin.IsLastPage">Вперед</button>
     </div>
-    <div class="panel-selected-model">
+    <div class="panel-selected-model" ng-disabled="admin.IsWorking">
         <b>Ид: </b><span>{{admin.SelectedModel.Model.Id}}</span><br>
         <b>Наименование: </b><span>{{admin.SelectedModel.Model.Name}}</span><br>
         <!--<input id="file-input" type="file" multiple onchange="angular.element(this).scope().HandleFiles(this)">-->
-        <label>Выберите OBJ файл</label>
-        <input id="file-input" type="file" nv-file-select uploader="uploader">
-        <div class="progress" style="">
-            <div class="progress-bar" ng-style="{ 'width': admin.ZipProgress + '%' }" style="width: 0%;"></div>
-        </div>
+        <label>Выберите файлы модели</label><br>
+        <input id="file-input" multiple type="file" nv-file-select uploader="uploader" ng-disabled="admin.IsWorking">
+        <span ng-hide="!admin.IsWorking">Подождите, идет обработка...</span>
         <div>
-            <div>
-                Queue progress:
-                <div class="progress" style="">
-                    <div class="progress-bar" role="progressbar" ng-style="{ 'width': uploader.progress + '%' }" style="width: 0%;"></div>
-                </div>
-            </div>
-            <button type="button" class="btn btn-success btn-s" ng-click="uploader.uploadAll()" ng-disabled="admin.IsWorking" disabled="disabled">
-                <span class="glyphicon glyphicon-upload"></span> Upload all
-            </button>
-            <button type="button" class="btn btn-warning btn-s" ng-click="uploader.cancelAll()" ng-disabled="!uploader.isUploading" disabled="disabled">
-                <span class="glyphicon glyphicon-ban-circle"></span> Cancel all
-            </button>
-            <button type="button" class="btn btn-danger btn-s" ng-click="uploader.clearQueue()" ng-disabled="!uploader.queue.length" disabled="disabled">
-                <span class="glyphicon glyphicon-trash"></span> Remove all
-            </button>
-        </div>    </div>
+            <table border="1px">
+                <tr style='font-weight: bold;'>
+                    <th style='width: 50px;'></th>
+                    <th style='width: 50px; text-align: left'>ИД</th>
+                    <th style='width: 200px; text-align: left'>Имя файла</th>
+                    <th style='width: 200px; text-align: left'>Тип файла</th>
+                </tr>
+                <tr ng-repeat="file in admin.modelFiles" class="item item-selected-{{file.IsSelected}}" ng-click="admin.SelectModelFile(file)">
+                    <td><input type='checkbox' ng-model="file.IsChecked"/></td>
+                    <td><span>{{file.Model.Id}}</span></td>
+                    <td><span>{{file.Model.FileName}}</span></td>
+                    <td><span>{{file.Model.FileType}}</span></td>
+                </tr>
+            </table>
+        </div>
+        <!--<div>-->
+            <!--<div>-->
+                <!--Queue progress:-->
+                <!--<div class="progress" style="">-->
+                    <!--<div class="progress-bar" role="progressbar" ng-style="{ 'width': uploader.progress + '%' }" style="width: 0%;"></div>-->
+                <!--</div>-->
+            <!--</div>-->
+            <!--<button type="button" class="btn btn-success btn-s" ng-click="uploader.uploadAll()" ng-disabled="admin.IsWorking" disabled="disabled">-->
+                <!--<span class="glyphicon glyphicon-upload"></span> Загрузить...-->
+            <!--</button>-->
+            <!--&lt;!&ndash;<button type="button" class="btn btn-warning btn-s" ng-click="uploader.cancelAll()" ng-disabled="!uploader.isUploading" disabled="disabled">&ndash;&gt;-->
+                <!--&lt;!&ndash;<span class="glyphicon glyphicon-ban-circle"></span> Cancel all&ndash;&gt;-->
+            <!--&lt;!&ndash;</button>&ndash;&gt;-->
+            <!--&lt;!&ndash;<button type="button" class="btn btn-danger btn-s" ng-click="uploader.clearQueue()" ng-disabled="!uploader.queue.length" disabled="disabled">&ndash;&gt;-->
+                <!--&lt;!&ndash;<span class="glyphicon glyphicon-trash"></span> Remove all&ndash;&gt;-->
+            <!--&lt;!&ndash;</button>&ndash;&gt;-->
+        <!--</div>-->
+    </div>
 </div>
 
 </body>

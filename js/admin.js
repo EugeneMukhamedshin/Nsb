@@ -8,43 +8,36 @@ angular.module('adminApp', ['angularFileUpload'])
         admCtrl.PageSize = 10;
         admCtrl.SelectedModel = {};
         admCtrl.IsWorking = false;
-        admCtrl.ZipProgress = 0;
+        admCtrl.models = [];
+        admCtrl.modelFiles = [];
 
         var uploader = $scope.uploader = new FileUploader({
             url: 'upload.php'
         });
 
         uploader.onAfterAddingFile = function (fileItem) {
-            console.info('onAfterAddingFile', fileItem);
+            $scope.$apply(function() { admCtrl.IsWorking = true; });
             fileItem.formData.push({id: admCtrl.SelectedModel.Model.Id});
             if (fileItem.file.name.indexOf('.obj') != -1) {
                 var zip = new JSZip();
                 zip.file(fileItem.file.name, fileItem._file);
-                admCtrl.IsWorking = true;
-                zip.generateAsync({type: 'blob', compression: 'DEFLATE'}, function updateCallback(metadata) {
-                    $scope.$apply(function () {
-                        admCtrl.ZipProgress = metadata.percent.toFixed(2);
-                        console.log(admCtrl.ZipProgress + '%');
+                zip.generateAsync({type: 'blob', compression: 'DEFLATE'})
+                    .then(function (blob) {
+                        fileItem._file = blob;
+                        uploader.uploadItem(fileItem);
                     });
-                }).then(function (blob) {
-                    fileItem._file = blob;
-                    $scope.$apply(function () {
-                        admCtrl.IsWorking = false;
-                    });
-                });
+            }
+            else {
+                uploader.uploadItem(fileItem);
             }
         };
 
-        uploader.onBeforeUploadItem = function (fileItem) {
-            console.info(fileItem);
-        };
-
         uploader.onCompleteItem = function (fileItem, response, status, headers) {
-            admCtrl.IsWorking = !uploader.getNotUploadedItems().length;
+            console.log(fileItem._file.name, response);
         };
 
         uploader.onCompleteAll = function () {
-            admCtrl.IsWorking = !uploader.getNotUploadedItems().length;
+            $scope.$apply(function() { admCtrl.IsWorking = false; });
         };
 
         admCtrl.Refresh = function () {
@@ -80,10 +73,22 @@ angular.module('adminApp', ['angularFileUpload'])
         };
 
         admCtrl.SelectModel = function (model) {
-            if (admCtrl.SelectedModel)
+            if (admCtrl.IsWorking)
+                return;
+            if (admCtrl.SelectedModel) {
                 admCtrl.SelectedModel.IsSelected = false;
+            }
             admCtrl.SelectedModel = model;
             admCtrl.SelectedModel.IsSelected = true;
+            $http.get("model_files.php?modelId=" + admCtrl.SelectedModel.Model.Id).then(function (response) {
+                console.log(response);
+                var modelFiles = response.data.modelFiles;
+                modelFiles.forEach(function (file) {
+                    var vm = new viewModel(file);
+                    admCtrl.modelFiles.push(vm);
+                });
+            });
+
         };
 
         admCtrl.AddModel = function () {
