@@ -272,8 +272,8 @@ newmtl strekozz
 	Kd 0.5882 0.5882 0.5882
 	Ks 0.0000 0.0000 0.0000
 	Ke 0.0000 0.0000 0.0000
-	map_Ka strecoza.jpg
-	map_Kd strecoza.jpg
+	map_Ka Y:\Textures\Текстуры_УЛИЦА\стрекоза ЗЛ\стрекозный витраж.jpg
+	map_Kd Y:\Textures\Текстуры_УЛИЦА\стрекоза ЗЛ\стрекозный витраж.jpg
 
 newmtl wire_008008136
 	Ns 32
@@ -356,8 +356,8 @@ newmtl rainbow
 	Kd 0.5882 0.5882 0.5882
 	Ks 0.0000 0.0000 0.0000
 	Ke 0.0000 0.0000 0.0000
-	map_Ka circle.jpg
-	map_Kd circle.jpg
+	map_Ka Y:\Textures\Надя\Новая папка\цветовой круг иам.jpg
+	map_Kd Y:\Textures\Надя\Новая папка\цветовой круг иам.jpg
 
 newmtl wire_057008136
 	Ns 32
@@ -440,9 +440,9 @@ newmtl ptiz
 	Kd 0.5882 0.5882 0.5882
 	Ks 0.0000 0.0000 0.0000
 	Ke 0.0000 0.0000 0.0000
-	map_Ka bird.png
-	map_Kd bird.png
-	map_d bird_opacity.png
+	map_Ka Y:\Textures\Текстуры_УЛИЦА\текстуры зл\птица.png
+	map_Kd Y:\Textures\Текстуры_УЛИЦА\текстуры зл\птица.png
+	map_d Y:\Textures\Текстуры_УЛИЦА\текстуры зл\птица прозр.png
 
 newmtl wire_027177088
 	Ns 32

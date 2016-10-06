@@ -1,7 +1,7 @@
 ﻿--
 -- Скрипт сгенерирован Devart dbForge Studio for MySQL, Версия 7.1.13.0
 -- Домашняя страница продукта: http://www.devart.com/ru/dbforge/mysql/studio
--- Дата скрипта: 06.10.2016 0:11:08
+-- Дата скрипта: 06.10.2016 23:47:54
 -- Версия сервера: 5.7.13-log
 -- Версия клиента: 4.1
 --
@@ -42,8 +42,8 @@ CREATE TABLE model_files (
   PRIMARY KEY (id)
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 64
-AVG_ROW_LENGTH = 1024
+AUTO_INCREMENT = 128
+AVG_ROW_LENGTH = 16384
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 ROW_FORMAT = DYNAMIC;
@@ -62,33 +62,34 @@ CREATE TABLE models (
   PRIMARY KEY (id)
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 98
+AUTO_INCREMENT = 100
 AVG_ROW_LENGTH = 1820
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 COMMENT = 'Модели лабиринтов'
 ROW_FORMAT = DYNAMIC;
 
+--
+-- Описание для пользователя `mysql.sys`
+--
+DROP USER IF EXISTS 'mysql.sys'@'localhost';
+CREATE USER 'mysql.sys'@'localhost' IDENTIFIED WITH mysql_native_password PASSWORD EXPIRE DEFAULT ACCOUNT LOCK;
+GRANT ALL PRIVILEGES ON *.* TO 'mysql.sys'@'localhost' 
+WITH GRANT OPTION;
+
+--
+-- Описание для пользователя root
+--
+DROP USER IF EXISTS 'root'@'localhost';
+CREATE USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password AS '*81F5E21E35407D884A6CD4A731AEBFB6AF209E1B' PASSWORD EXPIRE DEFAULT;
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' 
+WITH GRANT OPTION;
+
 -- 
 -- Вывод данных для таблицы model_files
 --
 INSERT INTO model_files VALUES
-(46, 2, 'zl-24_standart_mtl.mtl', 'zl-24 standart mtl.mtl', 2, 0, NULL),
-(47, 2, 'веревка_bump.jpg', 'verevka bump.jpg', 3, 0, NULL),
-(48, 2, 'ин.jpg', 'in.jpg', 3, 0, NULL),
-(49, 2, 'ин2.jpg', 'in2.jpg', 3, 0, NULL),
-(50, 2, 'птица прозр.png', 'ptitsa prozr.png', 3, 0, NULL),
-(51, 2, 'птица.png', 'ptitsa.png', 3, 0, NULL),
-(52, 2, 'стрекозный витраж.jpg', 'strekoznyy vitrazh.jpg', 3, 0, NULL),
-(53, 2, 'цветовой круг иам.jpg', 'tsvetovoy krug iam.jpg', 3, 0, NULL),
-(54, 2, 'zl-24_standart_mtl.obj', 'zl-24 standart mtl.obj', 1, 0, NULL),
-(57, 2, 'bird.png', 'bird.png', 3, 0, NULL),
-(58, 2, 'bird_opacity.png', 'bird opacity.png', 3, 0, NULL),
-(59, 2, 'circle.jpg', 'circle.jpg', 3, 0, NULL),
-(60, 2, 'strecoza.jpg', 'strecoza.jpg', 3, 0, NULL),
-(61, 2, 'verevka_zel.jpg', 'verevka zel.jpg', 3, 0, NULL),
-(62, 2, 'zl-24_new_mtl.mtl', 'zl-24 new mtl.mtl', 2, 0, NULL),
-(63, 2, 'zl-24_new_mtl.obj', 'zl-24 new mtl.obj', 1, 0, NULL);
+(127, 2, 'ZL-24.mtl', 'ZL-24.mtl', 2, 0, NULL);
 
 -- 
 -- Вывод данных для таблицы models
@@ -115,26 +116,8 @@ INSERT INTO models VALUES
 (53, 'Новая модель', NULL, NULL, 1, 0),
 (54, 'Новая модель', NULL, NULL, 1, 0),
 (64, 'Новая модель', NULL, NULL, 1, 0),
-(65, 'Новая модель', NULL, NULL, 1, 0),
 (66, 'Новая модель', NULL, NULL, 1, 0),
-(67, 'Новая модель', NULL, NULL, 1, 0),
-(68, 'Новая модель', NULL, NULL, 1, 0),
-(69, 'Новая модель', NULL, NULL, 1, 0),
-(70, 'Новая модель', NULL, NULL, 1, 0),
-(71, 'Новая модель', NULL, NULL, 1, 0),
-(72, 'Новая модель', NULL, NULL, 1, 0),
-(73, 'Новая модель', NULL, NULL, 1, 0),
-(77, 'Новая модель', NULL, NULL, 1, 0),
-(78, 'Новая модель', NULL, NULL, 1, 0),
-(79, 'Новая модель', NULL, NULL, 1, 0),
-(80, 'Новая модель', NULL, NULL, 1, 0),
-(81, 'Новая модель', NULL, NULL, 1, 0),
-(82, 'Новая модель', NULL, NULL, 1, 0),
-(91, 'Новая модель', NULL, NULL, 1, 0),
-(92, 'Новая модель', NULL, NULL, 1, 0),
-(93, 'Новая модель', NULL, NULL, 1, 0),
-(94, 'Новая модель', NULL, NULL, 1, 0),
-(97, 'Новая модель', NULL, NULL, 1, 0);
+(68, 'Новая модель', NULL, NULL, 1, 0);
 
 -- 
 -- Восстановить предыдущий режим SQL (SQL mode)

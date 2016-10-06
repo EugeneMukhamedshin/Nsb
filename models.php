@@ -4,5 +4,5 @@ include "admin.php";
 
 $page = intval($_GET['page']);
 $pageSize = intval($_GET['pageSize']);
-$admin = new admin();
-echo $admin->getModels($page, $pageSize);
+$model = new model();
+echo $model->getModels($page, $pageSize);

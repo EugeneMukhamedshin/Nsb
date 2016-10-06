@@ -2,5 +2,5 @@
 
 include "admin.php";
 
-$admin = new admin();
-echo $admin->addModel();
+$model = new model();
+echo $model->addModel();

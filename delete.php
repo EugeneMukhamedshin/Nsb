@@ -5,10 +5,10 @@ include "admin.php";
 $post = file_get_contents("php://input");
 $selectedModels = json_decode($post);
 
-$ids = '';
+$ids = array();
 foreach ($selectedModels as $selectedModel) {
-    $ids[$counter++] = $selectedModel->Model->Id;
+    $ids[] = $selectedModel->Model->Id;
 }
 
-$admin = new admin();
-echo $admin->deleteModels($ids);
+$model = new model();
+echo $model->deleteModels($ids);

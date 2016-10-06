@@ -2,6 +2,7 @@
 include "admin.php";
 include "translate.php";
 
+$config = new config();
 $errorMsg = '';
 if (!empty($_FILES)) {
     $tempPath = $_FILES['file']['tmp_name'];
@@ -13,7 +14,7 @@ if (!empty($_FILES)) {
         $errorMsg = 'No Model Id';
     }
     else {
-        $dirName = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . $modelId;
+        $dirName = dirname(__FILE__) . DIRECTORY_SEPARATOR . $config->uploadDir . DIRECTORY_SEPARATOR . $modelId;
         if (!file_exists($dirName)) {
             mkdir($dirName);
             mkdir($dirName . DIRECTORY_SEPARATOR . 'unzipped');
@@ -21,8 +22,8 @@ if (!empty($_FILES)) {
         $uploadPath = $dirName . DIRECTORY_SEPARATOR . $trFileName;
         move_uploaded_file($tempPath, $uploadPath);
 
-        $admin = new admin();
-        echo $admin->addFileToModel($modelId, $fileName, $trFileName);
+        $modelFile = new modelFile();
+        echo $modelFile->addModelFile($modelId, $fileName, $trFileName);
         return;
     }
 } else {
