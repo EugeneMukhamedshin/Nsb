@@ -1,417 +1,607 @@
 <?php
-    header('Content-type: text/html; charset=utf-8');
+header('Content-type: text/html; charset=utf-8');
 ?>
 
 <?php
 
-	include 'config.php';
+include 'config.php';
 
-	$id = intval($_GET['id']);
+$id = intval($_GET['id']);
 
-	$config = new config();
-    // Create connection
-    $conn = new mysqli($config->serverName, $config->username, $config->password, $config->dbName);
-    // Check connection
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    } 
-    $sql = "SELECT id, name, obj_filename, mtl_filename FROM models WHERE id=" . $id;
-    $result = $conn->query($sql);
+$config = new config();
+// Create connection
+$conn = new mysqli($config->serverName, $config->username, $config->password, $config->dbName);
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+$sql = "SELECT m.id, m.name, m.description, m.link, mf_obj.translit_file_name obj_filename, mf_mtl.translit_file_name mtl_filename, m.add_ground, m.enable_shadows
+  FROM models m
+  INNER JOIN model_files mf_obj ON m.id = mf_obj.model_id AND mf_obj.file_type = 1
+  INNER JOIN model_files mf_mtl ON m.id = mf_mtl.model_id AND mf_mtl.file_type = 2
+  WHERE m.id = " . $id;
+$result = $conn->query($sql);
 
-    if ($result->num_rows > 0) {
-        // output data of each row
-        $row = $result->fetch_assoc();
-		$name = $row['name'];
-		$obj_filename = $row['obj_filename'];
-		$mtl_filename = $row['mtl_filename'];
-    } else {
-        echo "0 results";
-    }
-    $conn->close();
+if ($result->num_rows > 0) {
+    // output data of each row
+    $row = $result->fetch_assoc();
+    $name = $row['name'];
+    $obj_filename = $row['obj_filename'];
+    $mtl_filename = $row['mtl_filename'];
+    $description = $row['description'];
+    $link = $row['link'];
+    $addGround = $row['add_ground'];
+    $enable_shadows = $row['enable_shadows'];
+} else {
+    echo "0 results";
+}
+$conn->close();
 
 ?>
 
 <html lang="en" xmlns="http://www.w3.org/1999/html">
-	<head>
-		<title>three.js webgl - OBJLoader + MTLLoader</title>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-		<style>
-			body {
-				background-color: #ffffff;
-				margin: 0px;
-				height: 100%;
-				color: #555;
-				font-family: 'inconsolata';
-				font-size: 15px;
-				line-height: 18px;
-				overflow: hidden;
-			}
-			#info {
-				position: relative;
-				border: 0px;
-				left: 310px;
-				width: 500px;
-				height: 35px;
-				overflow: auto;
-				margin: 10px;
-				z-index: 200;
-				text-align: center;
-			}
-			#panel {
-				position: fixed;
-				left: 0px;
-				width: 310px;
-				height: 100%;
-				overflow: auto;
-				background: #fafafa;
-			}
-			#panel.span {
-				font-size: 24px;
-				color: black;
-				margin: 10px;
-			}
-			#panel.h1 {
-				margin: 10px;
-				font-size: 25px;
-				font-weight: normal;
-			}
-			#view-container {
-				position: absolute;
-				border: 1px;
-				left: 310px;
-				width: 850px;
-				height: 510px;
-				overflow: auto;
-				margin: 10px;
-				z-index: 100;
-			}
-			#view {
-				position: absolute;
-				overflow: auto;
-				left: 0;
-				top: 0;
-				margin: 10px;
-				width: 90%;
-				height: 90%;
-			}
-			#btnZoomIn {
-				position: absolute;
-				left: 10px;
-				top: 10px;
-				width: 30px;
-				height: 30px;
-				background-image: url("textures/zoom-in.png");
-				background-size: cover;
-			}
-			#btnZoomOut {
-				position: absolute;
-				left: 40px;
-				top: 10px;
-				width: 30px;
-				height: 30px;
-				background-image: url("textures/zoom-out.png");
-				background-size: cover;
-			}
-			#btnRotateLeft {
-				position: absolute;
-				left: 10px;
-				top: 40px;
-				width: 30px;
-				height: 30px;
-				background-image: url("textures/update-arrow-left.png");
-				background-size: cover;
-			}
-			#btnRotateRight {
-				position: absolute;
-				left: 40px;
-				top: 40px;
-				width: 30px;
-				height: 30px;
-				background-image: url("textures/update-arrow-right.png");
-				background-size: cover;
-			}
-			#logo {
-				width: 280px;
-				margin: 10px;
-			}
-		</style>
-	</head>
+<head>
+    <title><?= $name ?></title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="css/font-awesome/css/font-awesome.min.css">
+    <script src="dist/jszip/jszip.js"></script>
+    <script src="dist/jszip/jszip-utils.js"></script>
+    <script src="dist/threejs/three.js"></script>
+    <script src="dist/threejs/DDSLoader.js"></script>
+    <script src="dist/threejs/Detector.js"></script>
+    <script src="dist/threejs/MTLLoader.js"></script>
+    <script src="dist/threejs/OBJLoader.js"></script>
+    <script src="dist/threejs/OrbitControls.js"></script>
 
-	<body>
+    <style>
+        body {
+            background-color: #ffffff;
+            margin: 0px;
+            font-family: Helvetica;
+            font-size: 15px;
+            line-height: 18px;
+            overflow: hidden;
+            color: #999;
+        }
 
-		<div id="panel">
-			<img src="textures/logo.png" id="logo"/>
-			<h1><?= $name ?></h1>
-		</div>
+        #info {
+            position: relative;
+            border: 0px;
+            left: 310px;
+            width: 500px;
+            height: 35px;
+            overflow: auto;
+            margin: 10px;
+            z-index: 200;
+            text-align: center;
+        }
 
-		<div id="view-container">
-			<span id="info"></span>
-			<div id="view"></div>
-			<input type="button" id="btnZoomIn">
-			<input type="button" id="btnZoomOut">
-			<input type="button" id="btnRotateLeft">
-			<input type="button" id="btnRotateRight">
-		</div>
+        #panel {
+            position: fixed;
+            left: 0px;
+            width: 310px;
+            height: 100%;
+            overflow: auto;
+            background: #fafafa;
+        }
 
-		<script src="dist/jszip/jszip.js"></script>
-		<script src="dist/jszip/jszip-utils.js"></script>
-		<script src="dist/threejs/three.js"></script>
-		<script src="dist/threejs/DDSLoader.js"></script>
-		<script src="dist/threejs/Detector.js"></script>
-		<script src="dist/threejs/MTLLoader.js"></script>
-		<script src="dist/threejs/OBJLoader.js"></script>
-		<script src="dist/threejs/OrbitControls.js"></script>
+        #panel.span {
+            font-size: 24px;
+            color: black;
+            margin: 10px;
+        }
 
-		<script>
+        #panel.h1 {
+            margin: 10px;
+            font-size: 25px;
+            font-weight: normal;
+        }
 
-			if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+        .panel-contacts {
+            display: block;
+            font-size: 12px;
+            vertical-align: middle;
+            background-color: #FDFDFD;
+            border-bottom: 1px solid #E1E1E1;
+            text-align: left;
+            padding: 5px 5px 5px 15%;
+            min-width: 600px;
+        }
 
-			var container;
-			var camera, scene, renderer, controls;
+        .panel-logo {
+            display: block;
+            text-align: left;
+            padding: 15px 15px 15px 15%;
+        }
 
-			var infoBox = document.getElementById("info");
+        .panel-logo img {
+            height: 30px;
+        }
 
-			var start = new Date();
-			var zoomIn, zoomOut, rotateLeft, rotateRight;
-			
-			loadObject();
-			animate();
+        .panel-info {
+            display: block;
+            font-size: 16px;
+            background-color: #FDFDFD;
+            border: 1px solid #E1E1E1;
+            text-align: left;
+            padding: 10px 5px 10px 15%;
+            min-width: 900px;
+        }
 
-			document.getElementById('btnZoomIn').onmousedown = function () { zoomIn = true;	zoomOut = false; };
-			document.getElementById('btnZoomIn').onmouseup = function () { zoomIn = false; };
-			document.getElementById('btnZoomIn').onmouseout = function () { zoomIn = false; };
-			document.getElementById('btnZoomOut').onmousedown = function () { zoomOut = true; zoomIn = false;  };
-			document.getElementById('btnZoomOut').onmouseup = function () { zoomOut = false; };
-			document.getElementById('btnZoomOut').onmouseout = function () { zoomOut = false; };
-			document.getElementById('btnRotateLeft').onmousedown = function () { rotateLeft = true; rotateRight = false; };
-			document.getElementById('btnRotateLeft').onmouseup = function () { rotateLeft = false; };
-			document.getElementById('btnRotateLeft').onmouseout = function () { rotateLeft = false; };
-			document.getElementById('btnRotateRight').onmousedown = function () { rotateRight = true; rotateLeft = false; };
-			document.getElementById('btnRotateRight').onmouseup = function () { rotateRight = false; };
-			document.getElementById('btnRotateRight').onmouseout = function () { rotateRight = false; };
+        .panel-info .info-name {
+            margin-left: 50px;
+            padding-bottom: 4px;
+            border-bottom: 2px solid #F07F3B;
+        }
 
-			function loadObject() {
-				var onProgress = function ( xhr ) {
-					if ( xhr.lengthComputable ) {
-						var percentComplete = xhr.loaded / xhr.total * 100;
-						infoBox.innerText = Math.round(percentComplete, 2) + '% скачано';
-						console.log( Math.round(percentComplete, 2) + '% downloaded' );
-					}
-				};
+        .panel-info .info-link {
+            padding-left: 50px;
+        }
 
-				var onError = function ( xhr ) { };
+        .panel-view {
+            display: block;
+        }
 
-				THREE.Loader.Handlers.add( /\.dds$/i, new THREE.DDSLoader() );
+        #view-container {
+            position: relative;
+            /* Firefox */
+            height: -moz-calc(100% - 200px);
+            /* WebKit */
+            height: -webkit-calc(100% - 200px);
+            /* Opera */
+            height: -o-calc(100% - 200px);
+            /* Standard */
+            height: calc(100% - 200px);
+            overflow: auto;
+            z-index: 100;
+            margin: 10px 50px;
+        }
 
-				var filePath = 'content/<?= $id ?>/<?= $obj_filename ?>';
-				console.log(filePath);
-				JSZipUtils.getBinaryContent('content/<?= $id ?>/<?= $obj_filename ?>', function(err, data) {
-					try {
-						JSZip.loadAsync(data)
-						.then(function(zip) {
-							infoBox.innerText = 'Downloaded ' + (new Date() - start);
-							return zip.file('<?= $obj_filename ?>').async('string');
-						})
-						.then(function success(text) {
-							infoBox.innerText = 'Unzipped ' + (new Date() - start);
-							parse(text);
-							text = null;
-						}, function error(e) {
-							infoBox.innerText = e;
-						});
-						} catch(e) {
-							infoBox.innerText = e;
-						}
-				});	
-			}
+        #view {
+            position: absolute;
+            overflow: auto;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+        }
 
-			function parse(content)
-			{
-				var onProgress = function ( xhr ) {
-					if ( xhr.lengthComputable ) {
-						var percentComplete = xhr.loaded / xhr.total * 100;
-						infoBox.innerText = Math.round(percentComplete, 2) + '% скачано';
-						console.log( Math.round(percentComplete, 2) + '% downloaded' );
-					}
-				};
+        #btnZoomIn {
+            position: absolute;
+            left: 10px;
+            top: 10px;
+            width: 30px;
+            height: 30px;
+            background-image: url("textures/zoom-in.png");
+            background-size: cover;
+        }
 
-				var onError = function ( xhr ) { };
+        #btnZoomOut {
+            position: absolute;
+            left: 43px;
+            top: 10px;
+            width: 30px;
+            height: 30px;
+            background-image: url("textures/zoom-out.png");
+            background-size: cover;
+        }
 
-				var mtlLoader = new THREE.MTLLoader();
-				mtlLoader.setPath( 'content/<?= $id ?>/' );
-				mtlLoader.load( '<?= $mtl_filename ?>', function( materials ) {
+        #btnRotateLeft {
+            position: absolute;
+            left: 10px;
+            top: 43px;
+            width: 30px;
+            height: 30px;
+            background-image: url("textures/update-arrow-left.png");
+            background-size: cover;
+        }
 
-					infoBox.innerText = 'Materials loaded ' + (new Date() - start);
-					materials.preload();
+        #btnRotateRight {
+            position: absolute;
+            left: 43px;
+            top: 43px;
+            width: 30px;
+            height: 30px;
+            background-image: url("textures/update-arrow-right.png");
+            background-size: cover;
+        }
 
-					var objLoader = new THREE.OBJLoader();
-					objLoader.setMaterials( materials );
-					var object = objLoader.parse( content );
-					infoBox.innerText = 'Object parsed ' + (new Date() - start);
-                    object.traverse( function(node) {
-						if (node instanceof THREE.Mesh) {
-							node.castShadow = true;
-							node.receiveShadow = true;
-						}
+        .panel-partners {
+            padding: 10px 5px 10px 15%;
+        }
+
+        .panel-partners img {
+            height: 30px;
+            margin-left: 50px;
+        }
+
+        #panel-popup {
+            width: 100%;
+            height: 2000px;
+            background-color: rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            position: fixed;
+            top: 0px;
+            left: 0px;
+        }
+
+        #panel-popup .panel-popup-content {
+            margin: 150px auto 0px auto;
+            width: 10%;
+            padding: 30px;
+            background-color: #c5c5c5;
+            border-radius: 5px;
+            box-shadow: 0px 0px 20px #000;
+            color: #272727;
+            text-align: center;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <div class="panel-contacts">
+        <i class="fa fa-envelope" style="margin-right: 5px;margin-left: 5px;"></i>Email: <a
+            href="mailto:info@otadoya.ru">info@fun-terra.ru</a>
+        <i class="fa fa-phone" style="margin-right: 5px;margin-left: 5px;"></i>Телефон: <a href="tel:88007778209">8
+            (800) 777-82-09</a> (звонок по России бесплатный)
+    </div>
+    <div class="panel-logo">
+        <img src="textures/logo.png"/>
+    </div>
+    <div class="panel-info">
+        <span class="info-desc"><?= $description ?></span>
+        <span class="info-name"><?= $name ?></span>
+        <a class="info-link" href="<?= $link ?>">Узнать стоимость</a>
+    </div>
+    <div class="panel-view">
+        <div id="panel-popup" style="visibility: hidden;">
+            <div class="panel-popup-content">
+                <i class="fa fa-cog fa-spin fa-3x fa-fw"></i><br>
+                <span>Пожалуйста, подождите...</span>
+            </div>
+        </div>
+        <div id="view-container">
+            <span id="info"></span>
+            <div id="view"></div>
+            <span type="button" id="btnZoomIn"></span>
+            <span type="button" id="btnZoomOut"></span>
+            <span type="button" id="btnRotateLeft"></span>
+            <span type="button" id="btnRotateRight"></span>
+        </div>
+    </div>
+    <div class="panel-partners">
+        <img src="textures/otadoya.jpg"/>
+        <img src="textures/jumanji.png"/>
+        <img src="textures/parcobello.png"/>
+        <img src="textures/termoles.jpg"/>
+        <img src="textures/logo.png"/>
+    </div>
+</div>
+
+<!--<div id="panel">-->
+<!--    <img src="textures/logo.png" id="logo"/>-->
+<!--    <h1>--><? //= $name ?><!--</h1>-->
+<!--</div>-->
+
+<!--<div id="view-container">-->
+<!--    <span id="info"></span>-->
+<!--    <div id="view"></div>-->
+<!--    <input type="button" id="btnZoomIn">-->
+<!--    <input type="button" id="btnZoomOut">-->
+<!--    <input type="button" id="btnRotateLeft">-->
+<!--    <input type="button" id="btnRotateRight">-->
+<!--</div>-->
+
+<script>
+
+    if (!Detector.webgl) Detector.addGetWebGLMessage();
+
+    var container;
+    var camera, scene, renderer, controls;
+
+    var infoBox = document.getElementById("info");
+
+    var start = new Date();
+    var zoomIn, zoomOut, rotateLeft, rotateRight;
+
+    var textureLoaded = false;
+    var objectAdded = false;
+
+    loadObject();
+    animate();
+
+    document.getElementById('btnZoomIn').onmousedown = function () {
+        zoomIn = true;
+        zoomOut = false;
+    };
+    document.getElementById('btnZoomIn').onmouseup = function () {
+        zoomIn = false;
+    };
+    document.getElementById('btnZoomIn').onmouseout = function () {
+        zoomIn = false;
+    };
+    document.getElementById('btnZoomOut').onmousedown = function () {
+        zoomOut = true;
+        zoomIn = false;
+    };
+    document.getElementById('btnZoomOut').onmouseup = function () {
+        zoomOut = false;
+    };
+    document.getElementById('btnZoomOut').onmouseout = function () {
+        zoomOut = false;
+    };
+    document.getElementById('btnRotateLeft').onmousedown = function () {
+        rotateLeft = true;
+        rotateRight = false;
+    };
+    document.getElementById('btnRotateLeft').onmouseup = function () {
+        rotateLeft = false;
+    };
+    document.getElementById('btnRotateLeft').onmouseout = function () {
+        rotateLeft = false;
+    };
+    document.getElementById('btnRotateRight').onmousedown = function () {
+        rotateRight = true;
+        rotateLeft = false;
+    };
+    document.getElementById('btnRotateRight').onmouseup = function () {
+        rotateRight = false;
+    };
+    document.getElementById('btnRotateRight').onmouseout = function () {
+        rotateRight = false;
+    };
+
+    function loadObject() {
+        document.getElementById("panel-popup").style.visibility = "visible";
+
+        var onProgress = function (xhr) {
+            if (xhr.lengthComputable) {
+                var percentComplete = xhr.loaded / xhr.total * 100;
+                //infoBox.innerText = Math.round(percentComplete, 2) + '% скачано';
+                console.log(Math.round(percentComplete, 2) + '% downloaded');
+            }
+        };
+
+        var onError = function (xhr) {
+        };
+
+        THREE.Loader.Handlers.add(/\.dds$/i, new THREE.DDSLoader());
+
+        var filePath = 'uploads/<?= $id ?>/<?= $obj_filename ?>';
+        console.log(filePath);
+        JSZipUtils.getBinaryContent('uploads/<?= $id ?>/<?= $obj_filename ?>', function (err, data) {
+            try {
+                JSZip.loadAsync(data)
+                    .then(function (zip) {
+                        //infoBox.innerText = 'Downloaded ' + (new Date() - start);
+                        return zip.file('<?= $obj_filename ?>').async('string');
+                    })
+                    .then(function success(text) {
+                        //infoBox.innerText = 'Unzipped ' + (new Date() - start);
+                        parse(text);
+                        text = null;
+                    }, function error(e) {
+                        //infoBox.innerText = e;
                     });
+            } catch (e) {
+                //infoBox.innerText = e;
+            }
+        });
+    }
 
-					init( object );
-					object = null;
-					infoBox.innerText = 'Scene initialized ' + (new Date() - start);
-					infoBox.style.visibility = 'hidden';
-				});
-			}
+    function parse(content) {
+        var onProgress = function (xhr) {
+            if (xhr.lengthComputable) {
+                var percentComplete = xhr.loaded / xhr.total * 100;
+                //infoBox.innerText = Math.round(percentComplete, 2) + '% скачано';
+                console.log(Math.round(percentComplete, 2) + '% downloaded');
+            }
+        };
 
-			function init(object) {
+        var onError = function (xhr) {
+        };
 
-				container = document.getElementById('view');
+        var mtlLoader = new THREE.MTLLoader();
+        mtlLoader.setPath('uploads/<?= $id ?>/');
+        mtlLoader.load('<?= $mtl_filename ?>', function (materials) {
 
-				// scene
+            //infoBox.innerText = 'Materials loaded ' + (new Date() - start);
+            materials.preload();
 
-				scene = new THREE.Scene();
+            var objLoader = new THREE.OBJLoader();
+            objLoader.setMaterials(materials);
+            var object = objLoader.parse(content);
+            //infoBox.innerText = 'Object parsed ' + (new Date() - start);
+            object.traverse(function (node) {
+                if (node instanceof THREE.Mesh) {
+                    node.castShadow = true;
+                    node.receiveShadow = true;
+                }
+            });
 
- 				var bbox = new THREE.Box3().setFromObject( object );
-				var bsphere = bbox.getBoundingSphere();
+            init(object);
+            object = null;
+            //infoBox.innerText = 'Scene initialized ' + (new Date() - start);
+            //infoBox.style.visibility = 'hidden';
+        });
+    }
 
-				var factor = 10 / bsphere.radius;
-				object.scale.set(factor, factor, factor);
+    function init(object) {
 
- 				bbox = new THREE.Box3().setFromObject( object );
-				bsphere = bbox.getBoundingSphere();
+        container = document.getElementById('view');
 
-				var fovG = 45;
- 				var oL;
- 				var FOV = fovG * (Math.PI / 180); 
- 				var objectLocation = oL = bsphere.center;
- 				var objectRadius = bsphere.radius;
- 				var cL = {x : 60000, y : 30000, z : 100000};
+        // scene
 
-				var currentDistToObject = Math.sqrt(Math.pow(oL.x - cL.x, 2) + Math.pow(oL.y - cL.y, 2) + Math.pow(oL.z - cL.z, 2));
-				var requiredDistToObject = objectRadius * 0.8 / Math.sin(FOV / 2);
-				var coeff = requiredDistToObject / currentDistToObject;
+        scene = new THREE.Scene();
 
-				cL.x *= coeff;
-				cL.y *= coeff;
-				cL.z *= coeff;
+        var bbox = new THREE.Box3().setFromObject(object);
+        var bsphere = bbox.getBoundingSphere();
 
-				var nearPlane = (requiredDistToObject - objectRadius) * 0.1;
-				var farPlane = requiredDistToObject + objectRadius * 4;
+        var factor = 10 / bsphere.radius;
+        object.scale.set(factor, factor, factor);
 
-				object.position = objectLocation;
-				object.position.x = -bsphere.center.x;
-				object.position.y = -bsphere.center.y * 0.2;
-				object.position.z = -bsphere.center.z;
+        bbox = new THREE.Box3().setFromObject(object);
+        bsphere = bbox.getBoundingSphere();
 
-				var loader = new THREE.TextureLoader();
+        var fovG = 45;
+        var oL;
+        var FOV = fovG * (Math.PI / 180);
+        var objectLocation = oL = bsphere.center;
+        var objectRadius = bsphere.radius;
+        var cL = {x: 60000, y: 30000, z: 100000};
 
-				// ground
+        var currentDistToObject = Math.sqrt(Math.pow(oL.x - cL.x, 2) + Math.pow(oL.y - cL.y, 2) + Math.pow(oL.z - cL.z, 2));
+        var requiredDistToObject = objectRadius * 0.8 / Math.sin(FOV / 2);
+        var coeff = requiredDistToObject / currentDistToObject;
 
-				var groundTexture = loader.load( 'textures/grasslight-big.jpg' );
-				groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
-				groundTexture.repeat.set( 4, 4 );
-				groundTexture.anisotropy = 16;
+        cL.x *= coeff;
+        cL.y *= coeff;
+        cL.z *= coeff;
 
-				loader = null;
+        var nearPlane = (requiredDistToObject - objectRadius) * 0.1;
+        var farPlane = requiredDistToObject + objectRadius * 4;
 
-				var groundMaterial = new THREE.MeshPhongMaterial( { color: 0xe4e4e4, map: groundTexture } );
+        object.position = objectLocation;
+        object.position.x = -bsphere.center.x;
+        object.position.y = -bsphere.center.y * 0.2;
+        object.position.z = -bsphere.center.z;
 
-				var mesh = new THREE.Mesh( new THREE.CircleGeometry( bsphere.radius * 1.5, 64 ), groundMaterial );
-				mesh.position.y = -bsphere.center.y * 0.2;
-				mesh.rotation.x = - Math.PI / 2;
-				mesh.receiveShadow = true;
-				scene.add( mesh );
+        <?php
+        if ($addGround == 1) {
+        ?>
+        // ground
 
-		        scene.add( object );
+        var loader = new THREE.TextureLoader();
 
-				// camera
+        var groundTexture = loader.load('textures/grasslight-big.jpg', function () {
+            textureLoaded = true;
+        });
+        groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
+        groundTexture.repeat.set(4, 4);
+        groundTexture.anisotropy = 16;
 
-				camera = new THREE.PerspectiveCamera( fovG, container.clientWidth / container.clientHeight, nearPlane, farPlane );
-				camera.position.x = cL.x;
-				camera.position.y = cL.y;
-				camera.position.z = cL.z;
-				scene.add( camera );
+        loader = null;
 
-				// lights
+        var groundMaterial = new THREE.MeshPhongMaterial({color: 0xe4e4e4, map: groundTexture});
 
-				var light;
-				scene.add( new THREE.AmbientLight( 0x666666 ) );
+        var mesh = new THREE.Mesh(new THREE.CircleGeometry(bsphere.radius * 1.5, 64), groundMaterial);
+        mesh.position.y = -bsphere.center.y * 0.2;
+        mesh.rotation.x = -Math.PI / 2;
+        mesh.receiveShadow = true;
+        scene.add(mesh);
 
-				light = new THREE.DirectionalLight( 0xdfebff, 2 );
+        <?php
+        }
+        ?>
 
-				light.position.set( objectRadius * 0.2, objectRadius * 1.2, objectRadius * 0.2 );
+        scene.add(object);
 
-				light.castShadow = true;
+        // camera
 
-				light.shadow.mapSize.width = 4096;
-				light.shadow.mapSize.height = 4096;
-				light.shadow.bias = 0;
+        camera = new THREE.PerspectiveCamera(fovG, container.clientWidth / container.clientHeight, nearPlane, farPlane);
+        camera.position.x = cL.x;
+        camera.position.y = cL.y;
+        camera.position.z = cL.z;
+        scene.add(camera);
 
-				var d = objectRadius;
+        // lights
 
-				light.shadow.camera.left = - d;
-				light.shadow.camera.right = d;
-				light.shadow.camera.top = d;
-				light.shadow.camera.bottom = - d;
-				light.shadow.type = THREE.PCFSoftShadowMap;
-				light.shadowMapSoft = true;
+        var light;
+        scene.add(new THREE.AmbientLight(0x666666));
 
-				light.shadow.camera.far = objectRadius * 2;
-				light.shadow.camera.near = objectRadius * 0.2;
+        light = new THREE.DirectionalLight(0xdfebff, 2);
 
-				scene.add( light );
+        light.position.set(objectRadius * 0.2, objectRadius * 1.2, objectRadius * 0.2);
 
-				// renderer
+        light.castShadow = true;
 
-				renderer = new THREE.WebGLRenderer( { antialias: true } );
-				renderer.setPixelRatio( window.devicePixelRatio );
-				renderer.setSize( container.clientWidth, container.clientHeight );
-				renderer.setClearColor( 0xF5F5F5 );
+        light.shadow.mapSize.width = 4096;
+        light.shadow.mapSize.height = 4096;
+        light.shadow.bias = 0;
 
-				container.appendChild( renderer.domElement );
+        var d = objectRadius;
 
-				renderer.gammaInput = true;
-				renderer.gammaOutput = true;
+        light.shadow.camera.left = -d;
+        light.shadow.camera.right = d;
+        light.shadow.camera.top = d;
+        light.shadow.camera.bottom = -d;
+        light.shadow.type = THREE.PCFSoftShadowMap;
+        light.shadowMapSoft = true;
 
-				renderer.shadowMap.enabled = true;
-				renderer.shadowMapSoft = true;
-				renderer.shadowMap.Type = THREE.PCFShadowMap;
+        light.shadow.camera.far = objectRadius * 2;
+        light.shadow.camera.near = objectRadius * 0.2;
 
-				// controls
-				controls = new THREE.OrbitControls( camera, renderer.domElement );
-				controls.maxPolarAngle = Math.PI * 0.5;
-				controls.minDistance = objectRadius * 1.2;
-				controls.maxDistance = requiredDistToObject * 1.6;
-				controls.enablePan = false;
+        scene.add(light);
 
-				window.addEventListener( 'resize', onWindowResize, false );
-			}
+        // renderer
 
-			function onWindowResize() {
-				camera.aspect = container.clientWidth / container.clientHeight;
-				camera.updateProjectionMatrix();
+        renderer = new THREE.WebGLRenderer({antialias: true});
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.setClearColor(0xF5F5F5);
 
-				renderer.setSize( container.clientWidth, container.clientHeight );
-			}
+        container.appendChild(renderer.domElement);
 
-			function animate() {
-				if (zoomIn)
-					controls.zoomIn(0.99);
-				if (zoomOut)
-					controls.zoomOut(0.99);
-				if (rotateLeft)
-					controls.rotateLeft(-0.017);
-				if (rotateRight)
-					controls.rotateLeft(0.017);
-				requestAnimationFrame( animate );
-				render();
-			}
+        renderer.gammaInput = true;
+        renderer.gammaOutput = true;
 
-			function render() {
-				if (renderer != null)
-					renderer.render( scene, camera );
-			}
+        <?php
+        if ($enable_shadows == 1) {
+        ?>
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.autoUpdate = false;
+        renderer.shadowMap.needsUpdate = true;
+        renderer.shadowMapSoft = true;
+        renderer.shadowMap.Type = THREE.PCFShadowMap;
+        <?php
+        }
+        ?>
 
-		</script>
-	</body>
+        // controls
+        controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.maxPolarAngle = Math.PI * 0.5;
+        controls.minDistance = objectRadius * 1.2;
+        controls.maxDistance = requiredDistToObject * 1.6;
+        controls.enablePan = false;
+
+        objectAdded = true;
+
+        window.addEventListener('resize', onWindowResize, false);
+    }
+
+    function onWindowResize() {
+        camera.aspect = container.clientWidth / container.clientHeight;
+        camera.updateProjectionMatrix();
+
+        renderer.setSize(container.clientWidth, container.clientHeight);
+    }
+
+    function animate() {
+        requestAnimationFrame(animate);
+        if (!textureLoaded || !objectAdded)
+            return;
+        else
+            document.getElementById("panel-popup").style.visibility = "hidden";
+        if (zoomIn)
+            controls.zoomIn(0.99);
+        if (zoomOut)
+            controls.zoomOut(0.99);
+        if (rotateLeft)
+            controls.rotateLeft(-0.017);
+        if (rotateRight)
+            controls.rotateLeft(0.017);
+        render();
+    }
+
+    function render() {
+        if (renderer != null)
+            renderer.render(scene, camera);
+    }
+
+</script>
+</body>
 </html>

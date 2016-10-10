@@ -10,6 +10,11 @@
     <script src="dist/jszip/jszip.js"></script>
     <script src="dist/angular/angular-file-upload.js"></script>
     <style>
+        body {
+            font-family: Helvetica;
+            font-size: 12px;
+        }
+
         .models-panel {
             float: left;
         }
@@ -21,7 +26,7 @@
         .panel-controls {
             position: relative;
             /*top: 10px;*/
-            height: 40px;
+            height: 30px;
             /*left: 10px;*/
             /*width: 400px;*/
             float: none;
@@ -43,7 +48,7 @@
             position: relative;
             vertical-align: bottom;
             margin: 10px;
-            height: 40px;
+            height: 30px;
         }
 
         .panel-navigation button {
@@ -51,23 +56,23 @@
             width: 80px;
         }
 
-        .panel-popup{
-            width:100%;
+        .panel-popup {
+            width: 100%;
             height: 2000px;
-            background-color: rgba(0,0,0,0.5);
-            overflow:hidden;
-            position:fixed;
+            background-color: rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            position: fixed;
             top: 0px;
             left: 0px;
         }
 
-        .panel-popup .panel-popup-content{
-            margin:40px auto 0px auto;
-            width:200px;
+        .panel-popup .panel-popup-content {
+            margin: 40px auto 0px auto;
+            width: 200px;
             /*height: 40px;*/
-            padding:10px;
+            padding: 10px;
             background-color: #c5c5c5;
-            border-radius:5px;
+            border-radius: 5px;
             box-shadow: 0px 0px 10px #000;
         }
 
@@ -81,9 +86,9 @@
     </style>
 </head>
 <body>
-<fieldset class="models-panel" ng-controller="modelController as ctl">
+<fieldset ng-controller="modelController as ctl">
     <legend>Модели</legend>
-    <div>
+    <div class="models-panel">
         <div class="panel-controls">
             <button ng-click="ctl.AddModel()">Добавить</button>
             <button ng-click="ctl.DeleteSelected()">Удалить</button>
@@ -92,14 +97,20 @@
             <table border="1px">
                 <tr style='font-weight: bold;'>
                     <th style='width: 50px;'></th>
-                    <th style='width: 50px; text-align: left'>ИД</th>
-                    <th style='width: 200px; text-align: left'>Наименование</th>
+                    <th style='width: 30px; text-align: left'>ИД</th>
+                    <th style='width: 150px; text-align: left'>Наименование</th>
+                    <th style='width: 50px; text-align: left'>Земля</th>
+                    <th style='width: 50px; text-align: left'>Тень</th>
                 </tr>
                 <tr ng-repeat="model in ctl.models" class="item item-selected-{{model.IsSelected}}"
                     ng-click="ctl.SelectItem(model)">
                     <td><input type='checkbox' ng-model="model.IsChecked"/></td>
                     <td><span>{{model.Model.Id}}</span></td>
                     <td><a ng-href="view.php?id={{model.Model.Id}}">{{model.Model.Name}}</a></td>
+                    <td><input type='checkbox' ng-model="model.Model.AddGround"
+                               ng-change="ctl.UpdateModel(model.Model)"/></td>
+                    <td><input type='checkbox' ng-model="model.Model.EnableShadows"
+                               ng-change="ctl.UpdateModel(model.Model)"/></td>
                 </tr>
             </table>
         </div>
@@ -108,44 +119,70 @@
             <button ng-click="ctl.NextPage()" ng-disabled="ctl.IsLastPage">Вперед</button>
         </div>
     </div>
-</fieldset>
-<fieldset class="model-files-panel" ng-controller="modelFileController as ctl">
-    <legend>Файлы модели</legend>
-    <div>
-        <div class="panel-controls">
-            <button onclick="document.getElementById('file-input').click()" ng-disabled="ctl.IsWorking">Добавить
-            </button>
-            <button ng-click="ctl.DeleteSelected()">Удалить</button>
-            <input style="position: absolute; left: -1000px;" id="file-input" multiple type="file" nv-file-select
-                   uploader="uploader" ng-disabled="ctl.IsWorking">
-        </div>
-        <div class="panel-list">
-            <table border="1px">
-                <tr style='font-weight: bold;'>
-                    <th style='width: 50px;'><input type='checkbox' ng-model="ctl.AllAreChecked"
-                                                    ng-change="ctl.ToggleAllAreChecked()"/></th>
-                    <th style='width: 50px; text-align: left'>ИД</th>
-                    <th style='width: 50px; text-align: left'>Тип</th>
-                    <th style='width: 200px; text-align: left'>Наименование</th>
-                </tr>
-                <tr ng-repeat="modelFile in ctl.modelFiles" class="item item-selected-{{modelFile.IsSelected}}"
-                    ng-click="ctl.SelectItem(modelFile)">
-                    <td><input type='checkbox' ng-model="modelFile.IsChecked"/></td>
-                    <td><span>{{modelFile.Model.Id}}</span></td>
-                    <td><span>{{modelFile.Model.FileType}}</span></td>
-                    <td><span>{{modelFile.Model.FileName}}</span></td>
-                </tr>
-            </table>
-        </div>
-        <div class="panel-navigation">
-            <button ng-click="ctl.PrevPage()" ng-disabled="ctl.IsFirstPage">Назад</button>
-            <button ng-click="ctl.NextPage()" ng-disabled="ctl.IsLastPage">Вперед</button>
-        </div>
-    </div>
-    <div class="panel-popup" ng-hide="!ctl.IsWorking">
-        <div class="panel-popup-content" ng-click="">
-            <span>Пожалуйста, подождите, идет обработка файла...</span>
-        </div>
+    <div class="selected-model-panel">
+        <fieldset>
+            <legend>Редактирование модели</legend>
+            <form>
+                <table>
+                    <tr>
+                        <td><label for="name-input">Наименование</label></td>
+                        <td><input id="name-input" type="text" ng-model="ctl.SelectedItem.Model.Name"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="link-input">Ссылка</label></td>
+                        <td><input id="link-input" type="text" ng-model="ctl.SelectedItem.Model.Link"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="desc-input">Серия</label></td>
+                        <td><input id="desc-input" type="text" ng-model="ctl.SelectedItem.Model.Description"></td>
+                    </tr>
+                </table>
+                <button ng-click="ctl.UpdateModel(ctl.SelectedItem.Model)">Сохранить</button>
+            </form>
+            <br>
+            <fieldset class="model-files-panel" ng-controller="modelFileController as ctl">
+                <legend>Файлы модели</legend>
+                <div>
+                    <div class="panel-controls">
+                        <button onclick="document.getElementById('file-input').click()" ng-disabled="ctl.IsWorking">
+                            Добавить
+                        </button>
+                        <button ng-click="ctl.DeleteSelected()">Удалить</button>
+                        <input style="position: absolute; left: -1000px;" id="file-input" multiple type="file"
+                               nv-file-select
+                               uploader="uploader" ng-disabled="ctl.IsWorking">
+                    </div>
+                    <div class="panel-list">
+                        <table border="1px">
+                            <tr style='font-weight: bold;'>
+                                <th style='width: 50px;'><input type='checkbox' ng-model="ctl.AllAreChecked"
+                                                                ng-change="ctl.ToggleAllAreChecked()"/></th>
+                                <th style='width: 50px; text-align: left'>ИД</th>
+                                <th style='width: 50px; text-align: left'>Тип</th>
+                                <th style='width: 200px; text-align: left'>Наименование</th>
+                            </tr>
+                            <tr ng-repeat="modelFile in ctl.modelFiles"
+                                class="item item-selected-{{modelFile.IsSelected}}"
+                                ng-click="ctl.SelectItem(modelFile)">
+                                <td><input type='checkbox' ng-model="modelFile.IsChecked"/></td>
+                                <td><span>{{modelFile.Model.Id}}</span></td>
+                                <td><span>{{modelFile.Model.FileType}}</span></td>
+                                <td><span>{{modelFile.Model.FileName}}</span></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="panel-navigation">
+                        <button ng-click="ctl.PrevPage()" ng-disabled="ctl.IsFirstPage">Назад</button>
+                        <button ng-click="ctl.NextPage()" ng-disabled="ctl.IsLastPage">Вперед</button>
+                    </div>
+                </div>
+                <div class="panel-popup" ng-hide="!ctl.IsWorking">
+                    <div class="panel-popup-content" ng-click="">
+                        <span>Пожалуйста, подождите, идет обработка файла...</span>
+                    </div>
+                </div>
+            </fieldset>
+        </fieldset>
     </div>
 </fieldset>
 </body>

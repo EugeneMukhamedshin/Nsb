@@ -24,6 +24,7 @@ var module = angular.module('adminApp', ['angularFileUpload'])
 
         modelCtl.Refresh = function () {
             $http.get("models.php?page=" + modelCtl.Page + "&pageSize=" + modelCtl.PageSize).then(function (response) {
+                console.log(response);
                 var models = response.data.models;
                 modelCtl.IsFirstPage = modelCtl.Page == 1;
                 modelCtl.IsLastPage = models.length != modelCtl.PageSize + 1;
@@ -36,6 +37,8 @@ var module = angular.module('adminApp', ['angularFileUpload'])
                 });
                 if (models.length > 0)
                     modelCtl.SelectItem(modelCtl.models[0]);
+                else
+                    modelCtl.SelectedItem = {};
             });
         };
 
@@ -69,8 +72,9 @@ var module = angular.module('adminApp', ['angularFileUpload'])
                 .get("add.php")
                 .then(function (response) {
                     console.log(response);
-                    var vm = new viewModel(response.data.models[0]);
-                    modelCtl.models.shift();
+                    var vm = new viewModel(response.data);
+                    if (modelCtl.models.length == modelCtl.PageSize)
+                        modelCtl.models.shift();
                     modelCtl.models.push(vm);
                     modelCtl.SelectItem(vm);
                 })
@@ -90,6 +94,23 @@ var module = angular.module('adminApp', ['angularFileUpload'])
                 .success(function () {
                     if (selected.length == modelCtl.models.length && modelCtl.Page > 1)
                         modelCtl.Page--;
+                    modelCtl.Refresh();
+                })
+                .error(function () {
+                    modelCtl.Refresh();
+                });
+        };
+
+        modelCtl.UpdateModel = function(model) {
+            var config = {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;'
+                }
+            };
+            $http
+                .post("update.php", model, config)
+                .success(function (response) {
+                    console.log(response);
                     modelCtl.Refresh();
                 })
                 .error(function () {
@@ -236,7 +257,10 @@ var module = angular.module('adminApp', ['angularFileUpload'])
 
         uploader.onCompleteAll = function () {
             $scope.$apply(function () {
-                modelFileCtl.IsWorking = false;
+                var undone = uploader.queue.filter(function(fileItem) { return !fileItem.isUploaded; });
+                if (undone.length == 0) {
+                    modelFileCtl.IsWorking = false;
+                }
                 modelFileCtl.Refresh();
             });
         };

@@ -29,19 +29,27 @@ class model extends dataModel
     public function getModel($id)
     {
         $conn = $this->createConnection();
-        $sql = "SELECT id, name, obj_filename, mtl_filename FROM models WHERE id = " . $id;
+        $sql = "
+SELECT m.id, m.name, m.description, m.link, mf_obj.translit_file_name obj_filename, mf_mtl.translit_file_name mtl_filename, m.add_ground, m.enable_shadows
+  FROM models m
+  LEFT JOIN model_files mf_obj ON m.id = mf_obj.model_id AND mf_obj.file_type = 1
+  LEFT JOIN model_files mf_mtl ON m.id = mf_mtl.model_id AND mf_mtl.file_type = 2
+  WHERE m.id = " . $id;
 
         $result = $conn->query($sql);
-
-        $models = array("models" => array());
-        while ($row = $result->fetch_assoc()) {
-            $models["models"][] = array(
-                "Id" => $row['id'],
-                "Name" => $row['name']
-            );
-        }
+        $row = $result->fetch_assoc();
+        $model = array(
+            "Id" => $row['id'],
+            "Name" => $row['name'],
+            "Description" => $row['description'],
+            "Link" => $row['link'],
+            "ObjFileName" => $row['obj_filename'],
+            "MtlFileName" => $row['mtl_filename'],
+            "AddGround" => $row['add_ground'] == 1,
+            "EnableShadows" => $row['enable_shadows'] == 1
+        );
         $conn->close();
-        return json_encode($models);
+        return json_encode($model);
     }
 
     public function getModels($page, $pageSize)
@@ -49,7 +57,7 @@ class model extends dataModel
         $conn = $this->createConnection();
         $startRec = ($page - 1) * $pageSize;
         $ps = $pageSize + 1;
-        $sql = "SELECT id, name, obj_filename, mtl_filename FROM models LIMIT " . $startRec . "," . $ps;
+        $sql = "SELECT id, name, description, link, add_ground, enable_shadows FROM models LIMIT " . $startRec . "," . $ps;
 
         $result = $conn->query($sql);
 
@@ -57,7 +65,11 @@ class model extends dataModel
         while ($row = $result->fetch_assoc()) {
             $models["models"][] = array(
                 "Id" => $row['id'],
-                "Name" => $row['name']
+                "Name" => $row['name'],
+                "Description" => $row['description'],
+                "Link" => $row['link'],
+                "AddGround" => $row['add_ground'] == 1,
+                "EnableShadows" => $row['enable_shadows'] == 1
             );
         }
         $conn->close();
@@ -68,7 +80,7 @@ class model extends dataModel
     {
         $conn = $this->createConnection();
         $name = 'Новая модель';
-        $sql = "INSERT INTO models (name) VALUES ('" . $name . "')";
+        $sql = "INSERT INTO models (name, add_ground, enable_shadows) VALUES ('" . $name . "', 1, 1)";
         $conn->query($sql);
         $id = $conn->insert_id;
         $conn->close();
@@ -133,6 +145,27 @@ class model extends dataModel
         $conn->query($sql);
         $conn->close();
     }
+
+    public function updateModel($updated)
+    {
+        $conn = $this->createConnection();
+
+        $sql = "
+UPDATE models 
+SET
+  name = '" . $updated->Name . "'
+ ,description = '" . $updated->Description . "'
+ ,link = '" . $updated->Link . "'
+ ,add_ground = " . ($updated->AddGround ? "1" : "0") . "
+ ,enable_shadows = " . ($updated->EnableShadows ? "1" : "0") . "
+WHERE
+  id = " . $updated->Id . "
+;";
+        $conn->query($sql);
+        $conn->close();
+
+        return $this->getModel($updated->Id);
+    }
 }
 
 class modelFile extends dataModel
@@ -147,7 +180,7 @@ class modelFile extends dataModel
 
         $arr = array("modelFiles" => array());
         while ($row = $result->fetch_assoc()) {
-            $arr["models"][] = array(
+            $arr["modelFiles"][] = array(
                 "Id" => $row['id'],
                 "ModelId" => $row['modelId'],
                 "FileName" => $row['file_name'],
@@ -291,59 +324,68 @@ VALUES
 
     }
 
-    function transliterateMtl($modelId, $fileName)
+    public function transliterateMtl($modelId, $fileName)
     {
+        echo 'Start transliterate' . "\r\n";;
         $config = new config();
         $dirName = dirname(__FILE__) . DIRECTORY_SEPARATOR . $config->uploadDir . DIRECTORY_SEPARATOR . $modelId;
         $info = null;
-        $delimiter_pattern = "\\s+";
-        $materialsInfo = array();
+        $delimiter_pattern = "/[\s]+/";
+        $translate = new translate();
 
         if (strpos($fileName, ".mtl") !== false) {
-            $handle = fopen($dirName . DIRECTORY_SEPARATOR . $fileName, "r");
-            if ($handle) {
-                while (($fline = fgets($handle)) !== false) {
-                    $line = trim($fline);
-
-                    if (strlen($line) === 0 || $line[0] === '#') {
-
-                        // Blank line or comment ignore
-                        continue;
-
-                    }
-
-                    $pos = strpos($line, ' ');
-
-                    $key = ($pos >= 0) ? substr($line, 0, $pos) : $line;
-                    $key = strtolower($key);
-
-                    $value = ($pos >= 0) ? substr($line, $pos + 1) : '';
-                    $value = trim($value);
-
-                    if ($key === 'newmtl') {
-
-                        // New material
-
-                        $info = array("name" => $value);
-                        $materialsInfo[$value] = $info;
-
-                    } else if ($info) {
-
-                        if ($key === 'ka' || $key === 'kd' || $key === 'ks') {
-                            continue;
-                        } else {
-                            $info[$key] = $value;
+            $readHandle = fopen($dirName . DIRECTORY_SEPARATOR . $fileName, "r");
+            $writeHandle = fopen($dirName . DIRECTORY_SEPARATOR . "_" . $fileName, "w");
+            if ($readHandle && $writeHandle) {
+                while (($fline = fgets($readHandle)) !== false) {
+                    $decodedLine = iconv("Windows-1251", "UTF-8", $fline);
+                    $line = trim($decodedLine);
+                    if (strlen($line) !== 0 && $line[0] !== '#') {
+                        $pos = strpos($line, ' ');
+                        $key = ($pos >= 0) ? substr($line, 0, $pos) : $line;
+                        $key = strtolower($key);
+                        $value = ($pos >= 0) ? substr($line, $pos + 1) : '';
+                        $value = trim($value);
+                        switch (strtolower($key)) {
+                            case 'map_ka':
+                            case 'map_kd':
+                            case 'map_ks':
+                            case 'map_d':
+                            case 'map_bump':
+                            case 'bump':
+                                $items = preg_split($delimiter_pattern, $value);
+                                $pos = array_search('-bm', $items);
+                                if ($pos) {
+                                    array_splice($items, $pos, 2);
+                                }
+                                $pos = array_search('-s', $items);
+                                if ($pos) {
+                                    array_splice($items, $pos, 4);
+                                }
+                                $pos = array_search('-o', $items);
+                                if ($pos) {
+                                    array_splice($items, $pos, 4);
+                                }
+                                $url = implode(" ", $items);
+                                $url_parts = explode("\\", $url);
+                                $resourceFileName = end($url_parts);
+                                $decodedLine = str_replace($url, $translate->transliterate($resourceFileName), $decodedLine);
+                                echo $line;
+                            default:
+                                break;
                         }
                     }
+                    fwrite($writeHandle, $decodedLine);
                 }
-                fclose($handle);
             } else {
-                $errorMsg = 'Can not open file';
+                echo "Error opening file";
             }
-        } else {
-            $errorMsg = 'Not zip';
+
+            fclose($writeHandle);
+            fclose($readHandle);
+
+            rename($dirName . DIRECTORY_SEPARATOR . "_" . $fileName, $dirName . DIRECTORY_SEPARATOR . $fileName);
+            return;
         }
-        echo json_encode($materialsInfo);
     }
 }
-
