@@ -465,9 +465,9 @@ $conn->close();
         var nearPlane = (requiredDistToObject - objectRadius) * 0.1;
         var farPlane = requiredDistToObject + objectRadius * 4;
 
-        object.position = objectLocation;
+        //object.position = objectLocation;
         object.position.x = -bsphere.center.x;
-        object.position.y = -bsphere.center.y * 0.2;
+        object.position.y = -bsphere.center.y * 0.75;
         object.position.z = -bsphere.center.z;
 
         <?php
@@ -489,7 +489,7 @@ $conn->close();
         var groundMaterial = new THREE.MeshPhongMaterial({color: 0xe4e4e4, map: groundTexture});
 
         var mesh = new THREE.Mesh(new THREE.CircleGeometry(bsphere.radius * 1.5, 64), groundMaterial);
-        mesh.position.y = -bsphere.center.y * 0.2;
+        mesh.position.y = -bsphere.center.y * 0.75;
         mesh.rotation.x = -Math.PI / 2;
         mesh.receiveShadow = true;
         scene.add(mesh);
