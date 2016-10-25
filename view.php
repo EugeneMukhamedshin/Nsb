@@ -463,7 +463,7 @@ $conn->close();
         cL.z *= coeff;
 
         var nearPlane = (requiredDistToObject - objectRadius) * 0.1;
-        var farPlane = requiredDistToObject + objectRadius * 4;
+        var farPlane = requiredDistToObject + objectRadius * 10;
 
         //object.position = objectLocation;
         object.position.x = -bsphere.center.x;
@@ -484,15 +484,39 @@ $conn->close();
         groundTexture.repeat.set(4, 4);
         groundTexture.anisotropy = 16;
 
-        loader = null;
-
         var groundMaterial = new THREE.MeshPhongMaterial({color: 0xe4e4e4, map: groundTexture});
 
-        var mesh = new THREE.Mesh(new THREE.CircleGeometry(bsphere.radius * 1.5, 64), groundMaterial);
+        var mesh = new THREE.Mesh(new THREE.CircleGeometry(bsphere.radius * 4, 64), groundMaterial);
         mesh.position.y = -bsphere.center.y * 0.75;
         mesh.rotation.x = -Math.PI / 2;
         mesh.receiveShadow = true;
         scene.add(mesh);
+
+        var backgroundTexture = loader.load('textures/cube/Park2/panorama.png', function () {
+            textureLoaded = true;
+        });
+//        backgroundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
+//        backgroundTexture.repeat.set(4, 4);
+//        backgroundTexture.anisotropy = 16;
+
+        var backgroundMaterial = new THREE.MeshPhongMaterial({color: 0xe4e4e4, map: backgroundTexture, side: THREE.BackSide});
+
+        var material = [
+            new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture('textures/cube/Park2/posx.jpg'), side: THREE.BackSide }),
+            new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture('textures/cube/Park2/negx.jpg'), side: THREE.BackSide }),
+            new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture('textures/cube/Park2/posy.jpg'), side: THREE.BackSide }),
+            new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture('textures/cube/Park2/negy.jpg'), side: THREE.BackSide }),
+            new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture('textures/cube/Park2/posz.jpg'), side: THREE.BackSide }),
+            new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture('textures/cube/Park2/negz.jpg'), side: THREE.BackSide })
+        ];
+
+//        var background = new THREE.Mesh(new THREE.SphereBufferGeometry(bsphere.radius * 4), backgroundMaterial);
+        var background = THREE.SceneUtils.createMultiMaterialObject(new THREE.BoxBufferGeometry(bsphere.radius * 4, bsphere.radius * 4, bsphere.radius * 4), material); // new THREE.MeshFaceMaterial(material));
+
+        background.doubleSided = true;
+        console.log(background.position);
+        background.position.y = bsphere.center.y * 0.75;
+        scene.add(background);
 
         <?php
         }

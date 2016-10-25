@@ -54,31 +54,30 @@
         <entry file="file://$PROJECT_DIR$/admin.php">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="17">
-              <caret line="182" column="27" selection-start-line="182" selection-start-column="27" selection-end-line="182" selection-end-column="27" />
+              <caret line="80" column="42" selection-start-line="80" selection-start-column="42" selection-end-line="80" selection-end-column="42" />
               <folding>
-                <element signature="n#model#0;n#!!top" expanded="false" />
-                <marker date="1476126009181" expanded="true" signature="663:1013" ph="SELECT id, n... models" />
-                <marker date="1476126009181" expanded="true" signature="663:1017" ph="SELECT id, n... models" />
-                <marker date="1476126009181" expanded="true" signature="1756:1855" ph="SELECT id, n... models" />
-                <marker date="1476126009181" expanded="true" signature="2549:2633" ph="INSERT INTO models... " />
-                <marker date="1476126009181" expanded="true" signature="2878:2958" ph="SELECT id, n... models" />
-                <marker date="1476126009181" expanded="true" signature="4702:4733" ph="DELETE FROM " />
-                <marker date="1476126009181" expanded="true" signature="4913:4941" ph="UPDATE model... " />
-                <marker date="1476126009181" expanded="true" signature="4913:4942" ph="UPDATE model... " />
-                <marker date="1476126009181" expanded="true" signature="4913:5063" ph="UPDATE model... " />
-                <marker date="1476126009181" expanded="true" signature="4913:5124" ph="UPDATE model... " />
-                <marker date="1476126009181" expanded="true" signature="4913:5183" ph="UPDATE model... " />
-                <marker date="1476126009181" expanded="true" signature="4913:5203" ph="UPDATE model... " />
-                <marker date="1476126009181" expanded="true" signature="5456:5556" ph="SELECT id, m... model_files" />
-                <marker date="1476126009181" expanded="true" signature="6325:6431" ph="SELECT id, m... model_files" />
-                <marker date="1476126009181" expanded="true" signature="6325:6453" ph="SELECT id, m... model_files" />
-                <marker date="1476126009181" expanded="true" signature="6325:6454" ph="SELECT id, m... model_files" />
-                <marker date="1476126009181" expanded="true" signature="6325:6472" ph="SELECT id, m... model_files" />
-                <marker date="1476126009181" expanded="true" signature="6325:6476" ph="SELECT id, m... model_files" />
-                <marker date="1476126009181" expanded="true" signature="6325:6479" ph="SELECT id, m... model_files" />
-                <marker date="1476126009181" expanded="true" signature="7173:7261" ph="DELETE FROM " />
-                <marker date="1476126009181" expanded="true" signature="7372:7551" ph="INSERT INTO model_files... " />
-                <marker date="1476126009181" expanded="true" signature="9550:9586" ph="DELETE FROM " />
+                <marker date="1476260593568" expanded="true" signature="663:1013" ph="SELECT id, n... models" />
+                <marker date="1476260593568" expanded="true" signature="663:1017" ph="SELECT id, n... models" />
+                <marker date="1476260593568" expanded="true" signature="1756:1855" ph="SELECT id, n... models" />
+                <marker date="1476260593568" expanded="true" signature="2549:2633" ph="INSERT INTO models... " />
+                <marker date="1476260593568" expanded="true" signature="2878:2958" ph="SELECT id, n... models" />
+                <marker date="1476260593568" expanded="true" signature="4702:4733" ph="DELETE FROM " />
+                <marker date="1476260593568" expanded="true" signature="4913:4941" ph="UPDATE model... " />
+                <marker date="1476260593568" expanded="true" signature="4913:4942" ph="UPDATE model... " />
+                <marker date="1476260593568" expanded="true" signature="4913:5063" ph="UPDATE model... " />
+                <marker date="1476260593568" expanded="true" signature="4913:5124" ph="UPDATE model... " />
+                <marker date="1476260593568" expanded="true" signature="4913:5183" ph="UPDATE model... " />
+                <marker date="1476260593568" expanded="true" signature="4913:5203" ph="UPDATE model... " />
+                <marker date="1476260593568" expanded="true" signature="5456:5556" ph="SELECT id, m... model_files" />
+                <marker date="1476260593568" expanded="true" signature="6325:6431" ph="SELECT id, m... model_files" />
+                <marker date="1476260593568" expanded="true" signature="6325:6453" ph="SELECT id, m... model_files" />
+                <marker date="1476260593568" expanded="true" signature="6325:6454" ph="SELECT id, m... model_files" />
+                <marker date="1476260593568" expanded="true" signature="6325:6472" ph="SELECT id, m... model_files" />
+                <marker date="1476260593568" expanded="true" signature="6325:6476" ph="SELECT id, m... model_files" />
+                <marker date="1476260593568" expanded="true" signature="6325:6479" ph="SELECT id, m... model_files" />
+                <marker date="1476260593568" expanded="true" signature="7173:7261" ph="DELETE FROM " />
+                <marker date="1476260593568" expanded="true" signature="7372:7551" ph="INSERT INTO model_files... " />
+                <marker date="1476260593568" expanded="true" signature="9550:9586" ph="DELETE FROM " />
               </folding>
             </state>
           </provider>
@@ -99,12 +98,12 @@
       <file leaf-file-name="view.php" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/view.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="444">
-              <caret line="491" column="49" selection-start-line="491" selection-start-column="49" selection-end-line="491" selection-end-column="49" />
+            <state relative-caret-position="163">
+              <caret line="495" column="33" selection-start-line="495" selection-start-column="33" selection-end-line="495" selection-end-column="33" />
               <folding>
-                <marker date="1476220156098" expanded="true" signature="372:724" ph="SELECT m.id,... models" />
-                <marker date="1476220156098" expanded="true" signature="8130:8443" ph="..." />
-                <marker date="1476220156098" expanded="true" signature="8451:8615" ph="..." />
+                <marker date="1477430459891" expanded="true" signature="372:724" ph="SELECT m.id,... models" />
+                <marker date="1477430459891" expanded="true" signature="8130:8443" ph="..." />
+                <marker date="1477430459891" expanded="true" signature="8451:8615" ph="..." />
               </folding>
             </state>
           </provider>
@@ -113,7 +112,7 @@
       <file leaf-file-name="OrbitControls.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/dist/threejs/OrbitControls.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="294">
+            <state relative-caret-position="2737">
               <caret line="161" column="39" selection-start-line="161" selection-start-column="30" selection-end-line="161" selection-end-column="39" />
               <folding />
             </state>
@@ -269,6 +268,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scratches" />
       <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
@@ -386,7 +386,6 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -396,14 +395,14 @@
     <property name="DefaultHtmlFileTemplate" value="HTML File" />
   </component>
   <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="Z:\home\localhost\www\Nsb" />
-    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="Z:\home\localhost\www\Nsb\dist\threejs" />
       <recent name="Z:\home\localhost\www\Nsb\dist\underscore" />
       <recent name="Z:\home\localhost\www\Nsb\dist\jszip" />
       <recent name="Z:\home\localhost\www\Nsb\js" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="Z:\home\localhost\www\Nsb" />
     </key>
   </component>
   <component name="RunManager">
@@ -474,12 +473,13 @@
       <workItem from="1475772760230" duration="13169000" />
       <workItem from="1475921150300" duration="15746000" />
       <workItem from="1475998260653" duration="7147000" />
-      <workItem from="1476217400694" duration="2741000" />
+      <workItem from="1476217400694" duration="4014000" />
+      <workItem from="1477424928388" duration="3985000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="99612000" />
+    <option name="totallyTimeSpent" value="104870000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
@@ -720,14 +720,6 @@
         <state />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/dist/threejs/three.min.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="202">
-          <caret line="12" column="14009" selection-start-line="12" selection-start-column="14009" selection-end-line="12" selection-end-column="14009" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/uploads/111/zl-24_standart_mtl.mtl">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="4522">
@@ -780,62 +772,69 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/dist/threejs/OrbitControls.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2737">
+          <caret line="161" column="39" selection-start-line="161" selection-start-column="30" selection-end-line="161" selection-end-column="39" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/admin.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
-          <caret line="182" column="27" selection-start-line="182" selection-start-column="27" selection-end-line="182" selection-end-column="27" />
+          <caret line="80" column="42" selection-start-line="80" selection-start-column="42" selection-end-line="80" selection-end-column="42" />
           <folding>
-            <element signature="n#model#0;n#!!top" expanded="false" />
-            <marker date="1476126009181" expanded="true" signature="663:1013" ph="SELECT id, n... models" />
-            <marker date="1476126009181" expanded="true" signature="663:1017" ph="SELECT id, n... models" />
-            <marker date="1476126009181" expanded="true" signature="1756:1855" ph="SELECT id, n... models" />
-            <marker date="1476126009181" expanded="true" signature="2549:2633" ph="INSERT INTO models... " />
-            <marker date="1476126009181" expanded="true" signature="2878:2958" ph="SELECT id, n... models" />
-            <marker date="1476126009181" expanded="true" signature="4702:4733" ph="DELETE FROM " />
-            <marker date="1476126009181" expanded="true" signature="4913:4941" ph="UPDATE model... " />
-            <marker date="1476126009181" expanded="true" signature="4913:4942" ph="UPDATE model... " />
-            <marker date="1476126009181" expanded="true" signature="4913:5063" ph="UPDATE model... " />
-            <marker date="1476126009181" expanded="true" signature="4913:5124" ph="UPDATE model... " />
-            <marker date="1476126009181" expanded="true" signature="4913:5183" ph="UPDATE model... " />
-            <marker date="1476126009181" expanded="true" signature="4913:5203" ph="UPDATE model... " />
-            <marker date="1476126009181" expanded="true" signature="5456:5556" ph="SELECT id, m... model_files" />
-            <marker date="1476126009181" expanded="true" signature="6325:6431" ph="SELECT id, m... model_files" />
-            <marker date="1476126009181" expanded="true" signature="6325:6453" ph="SELECT id, m... model_files" />
-            <marker date="1476126009181" expanded="true" signature="6325:6454" ph="SELECT id, m... model_files" />
-            <marker date="1476126009181" expanded="true" signature="6325:6472" ph="SELECT id, m... model_files" />
-            <marker date="1476126009181" expanded="true" signature="6325:6476" ph="SELECT id, m... model_files" />
-            <marker date="1476126009181" expanded="true" signature="6325:6479" ph="SELECT id, m... model_files" />
-            <marker date="1476126009181" expanded="true" signature="7173:7261" ph="DELETE FROM " />
-            <marker date="1476126009181" expanded="true" signature="7372:7551" ph="INSERT INTO model_files... " />
-            <marker date="1476126009181" expanded="true" signature="9550:9586" ph="DELETE FROM " />
+            <marker date="1476260593568" expanded="true" signature="663:1013" ph="SELECT id, n... models" />
+            <marker date="1476260593568" expanded="true" signature="663:1017" ph="SELECT id, n... models" />
+            <marker date="1476260593568" expanded="true" signature="1756:1855" ph="SELECT id, n... models" />
+            <marker date="1476260593568" expanded="true" signature="2549:2633" ph="INSERT INTO models... " />
+            <marker date="1476260593568" expanded="true" signature="2878:2958" ph="SELECT id, n... models" />
+            <marker date="1476260593568" expanded="true" signature="4702:4733" ph="DELETE FROM " />
+            <marker date="1476260593568" expanded="true" signature="4913:4941" ph="UPDATE model... " />
+            <marker date="1476260593568" expanded="true" signature="4913:4942" ph="UPDATE model... " />
+            <marker date="1476260593568" expanded="true" signature="4913:5063" ph="UPDATE model... " />
+            <marker date="1476260593568" expanded="true" signature="4913:5124" ph="UPDATE model... " />
+            <marker date="1476260593568" expanded="true" signature="4913:5183" ph="UPDATE model... " />
+            <marker date="1476260593568" expanded="true" signature="4913:5203" ph="UPDATE model... " />
+            <marker date="1476260593568" expanded="true" signature="5456:5556" ph="SELECT id, m... model_files" />
+            <marker date="1476260593568" expanded="true" signature="6325:6431" ph="SELECT id, m... model_files" />
+            <marker date="1476260593568" expanded="true" signature="6325:6453" ph="SELECT id, m... model_files" />
+            <marker date="1476260593568" expanded="true" signature="6325:6454" ph="SELECT id, m... model_files" />
+            <marker date="1476260593568" expanded="true" signature="6325:6472" ph="SELECT id, m... model_files" />
+            <marker date="1476260593568" expanded="true" signature="6325:6476" ph="SELECT id, m... model_files" />
+            <marker date="1476260593568" expanded="true" signature="6325:6479" ph="SELECT id, m... model_files" />
+            <marker date="1476260593568" expanded="true" signature="7173:7261" ph="DELETE FROM " />
+            <marker date="1476260593568" expanded="true" signature="7372:7551" ph="INSERT INTO model_files... " />
+            <marker date="1476260593568" expanded="true" signature="9550:9586" ph="DELETE FROM " />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/dist/threejs/OrbitControls.js">
+    <entry file="file://$PROJECT_DIR$/dist/threejs/three.min.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="294">
-          <caret line="161" column="39" selection-start-line="161" selection-start-column="30" selection-end-line="161" selection-end-column="39" />
+        <state relative-caret-position="193">
+          <caret line="12" column="16759" selection-start-line="12" selection-start-column="16759" selection-end-line="12" selection-end-column="16759" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/dist/threejs/three.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="202">
-          <caret line="23551" column="35" selection-start-line="23551" selection-start-column="35" selection-end-line="23551" selection-end-column="35" />
+        <state relative-caret-position="-11">
+          <caret line="17213" column="13" selection-start-line="17213" selection-start-column="13" selection-end-line="17213" selection-end-column="13" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/view.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="444">
-          <caret line="491" column="49" selection-start-line="491" selection-start-column="49" selection-end-line="491" selection-end-column="49" />
+        <state relative-caret-position="163">
+          <caret line="495" column="33" selection-start-line="495" selection-start-column="33" selection-end-line="495" selection-end-column="33" />
           <folding>
-            <marker date="1476220156098" expanded="true" signature="372:724" ph="SELECT m.id,... models" />
-            <marker date="1476220156098" expanded="true" signature="8130:8443" ph="..." />
-            <marker date="1476220156098" expanded="true" signature="8451:8615" ph="..." />
+            <marker date="1477430459891" expanded="true" signature="372:724" ph="SELECT m.id,... models" />
+            <marker date="1477430459891" expanded="true" signature="8130:8443" ph="..." />
+            <marker date="1477430459891" expanded="true" signature="8451:8615" ph="..." />
           </folding>
         </state>
       </provider>
