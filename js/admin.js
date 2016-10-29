@@ -8,7 +8,18 @@ var module = angular.module('adminApp', ['angularFileUpload'])
 
         return shareService;
     })
-    .controller('modelController', ['$scope', '$http', 'shareService', function ($scope, $http, shareService) {
+    .controller('tabController', ['$scope', function ($scope) {
+        $scope.tab = 1;
+
+        $scope.setTab = function (newTab) {
+            $scope.tab = newTab;
+        };
+
+        $scope.isSet = function (tabNum) {
+            return $scope.tab === tabNum;
+        };
+    }])
+    .controller('modelController', ['$scope', '$http', 'FileUploader', 'shareService', function ($scope, $http, FileUploader, shareService) {
         var modelCtl = this;
 
         modelCtl.Page = 1;
@@ -16,30 +27,60 @@ var module = angular.module('adminApp', ['angularFileUpload'])
         modelCtl.IsLastPage = false;
         modelCtl.IsFirstPage = false;
 
-        modelCtl.SelectedItem = {};
-
         modelCtl.IsWorking = false;
 
         modelCtl.models = [];
 
+        modelCtl.grounds = [];
+        modelCtl.backgrounds = [];
+
+        modelCtl.SelectedItem = {};
+        modelCtl.SelectedGround = undefined;
+        modelCtl.SelectedBackground = undefined;
+        modelCtl.SelectedBackgroundType = undefined;
+
         modelCtl.Refresh = function () {
-            $http.get("models.php?page=" + modelCtl.Page + "&pageSize=" + modelCtl.PageSize).then(function (response) {
-                console.log(response);
-                var models = response.data.models;
-                modelCtl.IsFirstPage = modelCtl.Page == 1;
-                modelCtl.IsLastPage = models.length != modelCtl.PageSize + 1;
-                if (!modelCtl.IsLastPage)
-                    models.pop();
-                modelCtl.models = [];
-                models.forEach(function (model) {
-                    var vm = new viewModel(model);
-                    modelCtl.models.push(vm);
-                });
-                if (models.length > 0)
-                    modelCtl.SelectItem(modelCtl.models[0]);
-                else
-                    modelCtl.SelectedItem = {};
-            });
+            $http
+                .get("ground.php")
+                .then(function (response) {
+                    var grounds = response.data.grounds;
+                    modelCtl.grounds = [];
+                    grounds.forEach(function (ground) {
+                        modelCtl.grounds.push(ground);
+                    });
+                })
+                .then(function () {
+                    $http
+                        .get("background.php")
+                        .then(function (response) {
+                            var backgrounds = response.data.backgrounds;
+                            modelCtl.backgrounds = [];
+                            backgrounds.forEach(function (background) {
+                                modelCtl.backgrounds.push(background);
+                            });
+                        });
+                })
+                .then(function () {
+                    $http
+                        .get("models.php?page=" + modelCtl.Page + "&pageSize=" + modelCtl.PageSize)
+                        .then(function (response) {
+                            var models = response.data.models;
+                            modelCtl.IsFirstPage = modelCtl.Page == 1;
+                            modelCtl.IsLastPage = models.length == 0 || models.length != modelCtl.PageSize + 1;
+                            if (!modelCtl.IsLastPage)
+                                models.pop();
+                            modelCtl.models = [];
+                            models.forEach(function (model) {
+                                var vm = new viewModel(model);
+                                modelCtl.models.push(vm);
+                            });
+                            if (models.length > 0)
+                                modelCtl.SelectItem(modelCtl.models[0]);
+                            else
+                                modelCtl.SelectedItem = {};
+                        });
+
+                })
         };
 
         modelCtl.PrevPage = function () {
@@ -64,14 +105,102 @@ var module = angular.module('adminApp', ['angularFileUpload'])
             }
             modelCtl.SelectedItem = model;
             modelCtl.SelectedItem.IsSelected = true;
+
+            modelCtl.SelectedGround = model.Model.Ground;
+            modelCtl.SelectedBackground = model.Model.Background;
+
             shareService.selectModel(model.Model);
         };
+
+        modelCtl.SetGround = function () {
+            modelCtl.SelectedItem.Model.Ground = JSON.parse(modelCtl.SelectedGround);
+        };
+
+        modelCtl.SetBackground = function () {
+            modelCtl.SelectedItem.Model.Background = JSON.parse(modelCtl.SelectedBackground);
+        };
+
+        var groundUploader = $scope.groundUploader = new FileUploader({url: 'upload.php'});
+
+        groundUploader.onAfterAddingFile = function (fileItem) {
+            fileItem.formData.push({groundId: modelCtl.SelectedItem.Model.Ground.Id});
+            groundUploader.uploadItem(fileItem);
+        };
+
+        groundUploader.onCompleteItem = function (fileItem, response, status, headers) {
+            console.log(fileItem._file.name, response);
+            modelCtl.SelectedItem.Model.Ground = response;
+        };
+
+        var backgroundUploaderpx = $scope.backgroundUploaderpx = new FileUploader({url: 'upload.php'});
+        var backgroundUploaderpy = $scope.backgroundUploaderpy = new FileUploader({url: 'upload.php'});
+        var backgroundUploaderpz = $scope.backgroundUploaderpz = new FileUploader({url: 'upload.php'});
+        var backgroundUploadernx = $scope.backgroundUploadernx = new FileUploader({url: 'upload.php'});
+        var backgroundUploaderny = $scope.backgroundUploaderny = new FileUploader({url: 'upload.php'});
+        var backgroundUploadernz = $scope.backgroundUploadernz = new FileUploader({url: 'upload.php'});
+
+        backgroundUploaderpx.onAfterAddingFile = function (fileItem) {
+            fileItem.formData.push({backgroundId: modelCtl.SelectedItem.Model.Background.Id});
+            fileItem.formData.push({backgroundType: 'px'});
+            console.log(fileItem);
+            backgroundUploaderpx.uploadItem(fileItem);
+        };
+
+        backgroundUploaderpy.onAfterAddingFile = function (fileItem) {
+            fileItem.formData.push({backgroundId: modelCtl.SelectedItem.Model.Background.Id});
+            fileItem.formData.push({backgroundType: 'py'});
+            console.log(fileItem);
+            backgroundUploaderpy.uploadItem(fileItem);
+        };
+
+        backgroundUploaderpz.onAfterAddingFile = function (fileItem) {
+            fileItem.formData.push({backgroundId: modelCtl.SelectedItem.Model.Background.Id});
+            fileItem.formData.push({backgroundType: 'pz'});
+            console.log(fileItem);
+            backgroundUploaderpz.uploadItem(fileItem);
+        };
+
+        backgroundUploadernx.onAfterAddingFile = function (fileItem) {
+            fileItem.formData.push({backgroundId: modelCtl.SelectedItem.Model.Background.Id});
+            fileItem.formData.push({backgroundType: 'nx'});
+            console.log(fileItem);
+            backgroundUploadernx.uploadItem(fileItem);
+        };
+
+        backgroundUploaderny.onAfterAddingFile = function (fileItem) {
+            fileItem.formData.push({backgroundId: modelCtl.SelectedItem.Model.Background.Id});
+            fileItem.formData.push({backgroundType: 'ny'});
+            console.log(fileItem);
+            backgroundUploaderny.uploadItem(fileItem);
+        };
+
+        backgroundUploadernz.onAfterAddingFile = function (fileItem) {
+            fileItem.formData.push({backgroundId: modelCtl.SelectedItem.Model.Background.Id});
+            fileItem.formData.push({backgroundType: 'nz'});
+            console.log(fileItem);
+            backgroundUploadernz.uploadItem(fileItem);
+        };
+
+        modelCtl.SetBackgroundFromResponse = function(fileItem, response) {
+            console.log(response);
+            modelCtl.SelectedItem.Model.Background = response;
+        };
+
+        modelCtl.getTime = function () {
+            return new Date().getTime();
+        };
+
+        backgroundUploaderpx.onCompleteItem = modelCtl.SetBackgroundFromResponse;
+        backgroundUploaderpy.onCompleteItem = modelCtl.SetBackgroundFromResponse;
+        backgroundUploaderpz.onCompleteItem = modelCtl.SetBackgroundFromResponse;
+        backgroundUploadernx.onCompleteItem = modelCtl.SetBackgroundFromResponse;
+        backgroundUploaderny.onCompleteItem = modelCtl.SetBackgroundFromResponse;
+        backgroundUploadernz.onCompleteItem = modelCtl.SetBackgroundFromResponse;
 
         modelCtl.AddModel = function () {
             $http
                 .get("add.php")
                 .then(function (response) {
-                    console.log(response);
                     var vm = new viewModel(response.data);
                     if (modelCtl.models.length == modelCtl.PageSize)
                         modelCtl.models.shift();
@@ -101,7 +230,7 @@ var module = angular.module('adminApp', ['angularFileUpload'])
                 });
         };
 
-        modelCtl.UpdateModel = function(model) {
+        modelCtl.UpdateModel = function (model) {
             var config = {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;'
@@ -110,12 +239,33 @@ var module = angular.module('adminApp', ['angularFileUpload'])
             $http
                 .post("update.php", model, config)
                 .success(function (response) {
-                    console.log(response);
                     modelCtl.Refresh();
                 })
                 .error(function () {
                     modelCtl.Refresh();
                 });
+        };
+
+        modelCtl.AddGround = function () {
+            $http
+                .get("add_ground.php")
+                .then(function (response) {
+                    var ground = response.data;
+                    modelCtl.grounds.push(ground);
+                    modelCtl.SelectedGround = ground;
+                    modelCtl.SelectedItem.Model.Ground = ground;
+                })
+        };
+
+        modelCtl.AddBackground = function () {
+            $http
+                .get("add_background.php")
+                .then(function (response) {
+                    var background = response.data;
+                    modelCtl.backgrounds.push(background);
+                    modelCtl.SelectedBackground = background;
+                    modelCtl.SelectedItem.Model.Background = background;
+                })
         };
 
         modelCtl.Refresh();
@@ -143,7 +293,6 @@ var module = angular.module('adminApp', ['angularFileUpload'])
                 return;
             }
             $http.get("model_files.php?modelId=" + modelFileCtl.model.Id + "&page=" + modelFileCtl.Page + "&pageSize=" + modelFileCtl.PageSize).then(function (response) {
-                console.log(response);
                 var modelFiles = response.data.modelFiles;
                 modelFileCtl.IsFirstPage = modelFileCtl.Page == 1;
                 modelFileCtl.IsLastPage = modelFiles.length != modelFileCtl.PageSize + 1;
@@ -191,19 +340,6 @@ var module = angular.module('adminApp', ['angularFileUpload'])
             modelFileCtl.AllAreChecked = flag;
         };
 
-        // modelFileCtl.AddModelFiles = function () {
-        //     $http
-        //         .get("add.php")
-        //         .then(function (response) {
-        //             console.log(response);
-        //             var vm = new viewModel(response.data.models[0]);
-        //             modelFileCtl.models.shift();
-        //             modelFileCtl.models.push(vm);
-        //             modelFileCtl.SelectItem(vm);
-        //             //shareService.newModel();
-        //         })
-        // };
-        //
         modelFileCtl.DeleteSelected = function () {
             var selected = _.filter(modelFileCtl.modelFiles, function (modelFile) {
                 return modelFile.IsChecked;
@@ -236,7 +372,7 @@ var module = angular.module('adminApp', ['angularFileUpload'])
             $scope.$apply(function () {
                 modelFileCtl.IsWorking = true;
             });
-            fileItem.formData.push({id: modelFileCtl.model.Id});
+            fileItem.formData.push({modelId: modelFileCtl.model.Id});
             if (fileItem.file.name.indexOf('.obj') != -1) {
                 var zip = new JSZip();
                 zip.file(fileItem.file.name, fileItem._file);
@@ -257,7 +393,9 @@ var module = angular.module('adminApp', ['angularFileUpload'])
 
         uploader.onCompleteAll = function () {
             $scope.$apply(function () {
-                var undone = uploader.queue.filter(function(fileItem) { return !fileItem.isUploaded; });
+                var undone = uploader.queue.filter(function (fileItem) {
+                    return !fileItem.isUploaded;
+                });
                 if (undone.length == 0) {
                     modelFileCtl.IsWorking = false;
                 }

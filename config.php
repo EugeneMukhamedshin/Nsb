@@ -7,4 +7,6 @@ class config
     public $password = "root";
     public $dbName = "nsb";
     public $uploadDir = "uploads";
+    public $groundsDir = "grounds";
+    public $backgroundsDir = "backgrounds";
 }

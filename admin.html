@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Административная панель</title>
+    <!--<link rel="stylesheet prefetch" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.css">-->
     <script src="dist/angular/angular.js"></script>
     <script src="dist/underscore/underscore-min.js"></script>
     <script src="js/model.js"></script>
@@ -31,6 +32,7 @@
             /*width: 400px;*/
             float: none;
             vertical-align: top;
+            margin: 10px;
             margin: 10px;
         }
 
@@ -76,12 +78,75 @@
             box-shadow: 0px 0px 10px #000;
         }
 
+        .nav {
+            margin: 20px;
+        }
+
+        .nav a {
+            padding: 10px;
+        }
+
+        .nav-pills li {
+            display: inline;
+        }
+
+        .nav-pills > li.active > a, .btn-primary {
+            background-color: #cfcfcf !important;
+            border-color: #6C6C6C !important;
+            border-radius: 5px;
+        }
+
+        .model-properties {
+            margin: 10px;
+        }
+
         .item {
             height: 32px;
         }
 
         .item-selected-true {
             background-color: #cccccc;
+        }
+
+        .cube {
+            position: relative;
+            height: auto;
+        }
+
+        .cube-img {
+            position: absolute;
+            height: 64px;
+            width: 64px;
+        }
+
+        .neg-x {
+            left: 10px;
+            top: 78px;
+        }
+
+        .pos-z {
+            left: 78px;
+            top: 78px;
+        }
+
+        .pos-x {
+            left: 146px;
+            top: 78px;
+        }
+
+        .neg-z {
+            left: 214px;
+            top: 78px;
+        }
+
+        .pos-y {
+            left: 78px;
+            top: 10px;
+        }
+
+        .neg-y {
+            left: 78px;
+            top: 146px;
         }
     </style>
 </head>
@@ -119,70 +184,193 @@
             <button ng-click="ctl.NextPage()" ng-disabled="ctl.IsLastPage">Вперед</button>
         </div>
     </div>
-    <div class="selected-model-panel">
-        <fieldset>
-            <legend>Редактирование модели</legend>
-            <form>
-                <table>
-                    <tr>
-                        <td><label for="name-input">Наименование</label></td>
-                        <td><input id="name-input" type="text" ng-model="ctl.SelectedItem.Model.Name"></td>
-                    </tr>
-                    <tr>
-                        <td><label for="link-input">Ссылка</label></td>
-                        <td><input id="link-input" type="text" ng-model="ctl.SelectedItem.Model.Link"></td>
-                    </tr>
-                    <tr>
-                        <td><label for="desc-input">Серия</label></td>
-                        <td><input id="desc-input" type="text" ng-model="ctl.SelectedItem.Model.Description"></td>
-                    </tr>
-                </table>
-                <button ng-click="ctl.UpdateModel(ctl.SelectedItem.Model)">Сохранить</button>
-            </form>
-            <br>
-            <fieldset class="model-files-panel" ng-controller="modelFileController as ctl">
-                <legend>Файлы модели</legend>
-                <div>
-                    <div class="panel-controls">
-                        <button onclick="document.getElementById('file-input').click()" ng-disabled="ctl.IsWorking">
-                            Добавить
-                        </button>
-                        <button ng-click="ctl.DeleteSelected()">Удалить</button>
-                        <input style="position: absolute; left: -1000px;" id="file-input" multiple type="file"
-                               nv-file-select
-                               uploader="uploader" ng-disabled="ctl.IsWorking">
+    <div class="row" ng-controller="tabController">
+        <div class="col-md-2">
+            <ul class="nav nav-pills">
+                <li ng-class="{ active: isSet(1) }">
+                    <a href ng-click="setTab(1)">Свойства модели</a>
+                </li>
+                <li ng-class="{ active: isSet(2) }">
+                    <a href ng-click="setTab(2)">Файлы</a>
+                </li>
+                <li ng-class="{ active: isSet(3) }">
+                    <a href ng-click="setTab(3)">Дополнительно</a>
+                </li>
+            </ul>
+        </div>
+        <div class="model-properties">
+            <div ng-show="isSet(1)">
+                <fieldset>
+                    <legend>Редактирование модели</legend>
+                    <table>
+                        <tr>
+                            <td><label for="name-input">Наименование</label></td>
+                            <td><input id="name-input" type="text" ng-model="ctl.SelectedItem.Model.Name"></td>
+                        </tr>
+                        <tr>
+                            <td><label for="link-input">Ссылка</label></td>
+                            <td><input id="link-input" type="text" ng-model="ctl.SelectedItem.Model.Link"></td>
+                        </tr>
+                        <tr>
+                            <td><label for="desc-input">Серия</label></td>
+                            <td><input id="desc-input" type="text" ng-model="ctl.SelectedItem.Model.Description">
+                            </td>
+                        </tr>
+                    </table>
+                    <button ng-click="ctl.UpdateModel(ctl.SelectedItem.Model)">Сохранить</button>
+                </fieldset>
+            </div>
+            <div ng-show="isSet(2)">
+                <fieldset class="model-files-panel" ng-controller="modelFileController as ctl">
+                    <legend>Файлы модели</legend>
+                    <div>
+                        <div class="panel-controls">
+                            <button onclick="document.getElementById('file-input').click()" ng-disabled="ctl.IsWorking">
+                                Добавить
+                            </button>
+                            <button ng-click="ctl.DeleteSelected()">Удалить</button>
+                            <input style="position: absolute; left: -1000px;" id="file-input" multiple type="file"
+                                   nv-file-select
+                                   uploader="uploader" ng-disabled="ctl.IsWorking">
+                        </div>
+                        <div class="panel-list">
+                            <table border="1px">
+                                <tr style='font-weight: bold;'>
+                                    <th style='width: 50px;'><input type='checkbox' ng-model="ctl.AllAreChecked"
+                                                                    ng-change="ctl.ToggleAllAreChecked()"/></th>
+                                    <th style='width: 50px; text-align: left'>ИД</th>
+                                    <th style='width: 50px; text-align: left'>Тип</th>
+                                    <th style='width: 200px; text-align: left'>Наименование</th>
+                                </tr>
+                                <tr ng-repeat="modelFile in ctl.modelFiles"
+                                    class="item item-selected-{{modelFile.IsSelected}}"
+                                    ng-click="ctl.SelectItem(modelFile)">
+                                    <td><input type='checkbox' ng-model="modelFile.IsChecked"/></td>
+                                    <td><span>{{modelFile.Model.Id}}</span></td>
+                                    <td><span>{{modelFile.Model.FileType}}</span></td>
+                                    <td><span>{{modelFile.Model.FileName}}</span></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="panel-navigation">
+                            <button ng-click="ctl.PrevPage()" ng-disabled="ctl.IsFirstPage">Назад</button>
+                            <button ng-click="ctl.NextPage()" ng-disabled="ctl.IsLastPage">Вперед</button>
+                        </div>
                     </div>
-                    <div class="panel-list">
-                        <table border="1px">
-                            <tr style='font-weight: bold;'>
-                                <th style='width: 50px;'><input type='checkbox' ng-model="ctl.AllAreChecked"
-                                                                ng-change="ctl.ToggleAllAreChecked()"/></th>
-                                <th style='width: 50px; text-align: left'>ИД</th>
-                                <th style='width: 50px; text-align: left'>Тип</th>
-                                <th style='width: 200px; text-align: left'>Наименование</th>
+                    <div class="panel-popup" ng-hide="!ctl.IsWorking">
+                        <div class="panel-popup-content" ng-click="">
+                            <span>Пожалуйста, подождите, идет обработка файла...</span>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div ng-show="isSet(3)">
+                <div class="model-ground-panel">
+                    <fieldset>
+                        <legend>Свойства основания</legend>
+                        <table>
+                            <tr>
+                                <td><label>Выберите основание</label></td>
+                                <td>
+                                    <select name="ground-select" class="" ng-model="ctl.SelectedGround"
+                                            ng-change="ctl.SetGround()">
+                                        <option ng-repeat="ground in ctl.grounds" value="{{ground}}">{{ground.Name}}
+                                        </option>
+                                    </select>
+                                    <button ng-click="ctl.AddGround()">Добавить</button>
+                                </td>
                             </tr>
-                            <tr ng-repeat="modelFile in ctl.modelFiles"
-                                class="item item-selected-{{modelFile.IsSelected}}"
-                                ng-click="ctl.SelectItem(modelFile)">
-                                <td><input type='checkbox' ng-model="modelFile.IsChecked"/></td>
-                                <td><span>{{modelFile.Model.Id}}</span></td>
-                                <td><span>{{modelFile.Model.FileType}}</span></td>
-                                <td><span>{{modelFile.Model.FileName}}</span></td>
+                            <tr>
+                                <td><label for="ground-name-input">Наименование</label></td>
+                                <td><input id="ground-name-input" type="text"
+                                           ng-model="ctl.SelectedItem.Model.Ground.Name">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><label>Превью</label></td>
+                                <td>
+                                    <img height="128" width="128" onclick="document.getElementById('img-input').click()"
+                                         ng-src="textures/grounds/{{ctl.SelectedItem.Model.Ground.Id}}/ground.jpg"/>
+                                    <input style="position: absolute; left: -1000px;" id="img-input" type="file"
+                                           nv-file-select
+                                           uploader="groundUploader">
+                                </td>
                             </tr>
                         </table>
-                    </div>
-                    <div class="panel-navigation">
-                        <button ng-click="ctl.PrevPage()" ng-disabled="ctl.IsFirstPage">Назад</button>
-                        <button ng-click="ctl.NextPage()" ng-disabled="ctl.IsLastPage">Вперед</button>
-                    </div>
+                        <button ng-click="ctl.UpdateModel(ctl.SelectedItem.Model)">Сохранить</button>
+                    </fieldset>
                 </div>
-                <div class="panel-popup" ng-hide="!ctl.IsWorking">
-                    <div class="panel-popup-content" ng-click="">
-                        <span>Пожалуйста, подождите, идет обработка файла...</span>
-                    </div>
+                <div class="model-background-panel">
+                    <fieldset>
+                        <legend>Свойства фона</legend>
+                        <table>
+                            <tr>
+                                <td><label>Выберите фон</label></td>
+                                <td>
+                                    <select name="background-select" class="" ng-model="ctl.SelectedBackground"
+                                            ng-change="ctl.SetBackground()">
+                                        <option ng-repeat="background in ctl.backgrounds" value="{{background}}">
+                                            {{background.Name}}
+                                        </option>
+                                    </select>
+                                    <button ng-click="ctl.AddBackground()">Добавить</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><label for="background-name-input">Наименование</label></td>
+                                <td><input id="background-name-input" type="text"
+                                           ng-model="ctl.SelectedItem.Model.Background.Name">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><label>Превью</label></td>
+                                <td>
+                                    <span class="cube">
+                                        <img class="cube-img pos-x"
+                                             onclick="document.getElementById('cube-img-input-px').click()"
+                                             ng-click="ctl.SetBackgroundType('px')"
+                                             ng-src="textures/backgrounds/{{ctl.SelectedItem.Model.Background.Id}}/px.jpg"/>
+                                        <img class="cube-img pos-y"
+                                             onclick="document.getElementById('cube-img-input-py').click()"
+                                             ng-click="ctl.SetBackgroundType('py')"
+                                             ng-src="textures/backgrounds/{{ctl.SelectedItem.Model.Background.Id}}/py.jpg"/>
+                                        <img class="cube-img pos-z"
+                                             onclick="document.getElementById('cube-img-input-pz').click()"
+                                             ng-click="ctl.SetBackgroundType('pz')"
+                                             ng-src="textures/backgrounds/{{ctl.SelectedItem.Model.Background.Id}}/pz.jpg"/>
+                                        <img class="cube-img neg-x"
+                                             onclick="document.getElementById('cube-img-input-nx').click()"
+                                             ng-click="ctl.SetBackgroundType('nx')"
+                                             ng-src="textures/backgrounds/{{ctl.SelectedItem.Model.Background.Id}}/nx.jpg"/>
+                                        <img class="cube-img neg-y"
+                                             onclick="document.getElementById('cube-img-input-ny').click()"
+                                             ng-click="ctl.SetBackgroundType('ny')"
+                                             ng-src="textures/backgrounds/{{ctl.SelectedItem.Model.Background.Id}}/ny.jpg"/>
+                                        <img class="cube-img neg-z"
+                                             onclick="document.getElementById('cube-img-input-nz').click()"
+                                             ng-click="ctl.SetBackgroundType('nz')"
+                                             ng-src="textures/backgrounds/{{ctl.SelectedItem.Model.Background.Id}}/nz.jpg"/>
+                                    </span>
+                                    <input style="position: absolute; left: -1000px;" id="cube-img-input-px" type="file"
+                                           nv-file-select uploader="backgroundUploaderpx">
+                                    <input style="position: absolute; left: -1000px;" id="cube-img-input-py" type="file"
+                                           nv-file-select uploader="backgroundUploaderpy">
+                                    <input style="position: absolute; left: -1000px;" id="cube-img-input-pz" type="file"
+                                           nv-file-select uploader="backgroundUploaderpz">
+                                    <input style="position: absolute; left: -1000px;" id="cube-img-input-nx" type="file"
+                                           nv-file-select uploader="backgroundUploadernx">
+                                    <input style="position: absolute; left: -1000px;" id="cube-img-input-ny" type="file"
+                                           nv-file-select uploader="backgroundUploaderny">
+                                    <input style="position: absolute; left: -1000px;" id="cube-img-input-nz" type="file"
+                                           nv-file-select uploader="backgroundUploadernz">
+                                </td>
+                            </tr>
+                        </table>
+                        <button ng-click="ctl.UpdateModel(ctl.SelectedItem.Model)">Сохранить</button>
+                    </fieldset>
                 </div>
-            </fieldset>
-        </fieldset>
+            </div>
+        </div>
     </div>
 </fieldset>
 </body>

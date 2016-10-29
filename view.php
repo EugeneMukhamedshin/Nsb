@@ -15,11 +15,37 @@ $conn = new mysqli($config->serverName, $config->username, $config->password, $c
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
-$sql = "SELECT m.id, m.name, m.description, m.link, mf_obj.translit_file_name obj_filename, mf_mtl.translit_file_name mtl_filename, m.add_ground, m.enable_shadows
-  FROM models m
-  INNER JOIN model_files mf_obj ON m.id = mf_obj.model_id AND mf_obj.file_type = 1
-  INNER JOIN model_files mf_mtl ON m.id = mf_mtl.model_id AND mf_mtl.file_type = 2
-  WHERE m.id = " . $id;
+$sql = "SELECT
+  m.id,
+  m.name,
+  m.description,
+  m.link,
+  mf_obj.translit_file_name obj_filename,
+  mf_mtl.translit_file_name mtl_filename,
+  m.add_ground,
+  m.add_background,
+  m.enable_shadows,
+  g.id AS ground_id,
+  g.filename AS ground_filename,
+  b.id AS bg_id,
+  b.px AS bg_px,
+  b.nx AS bg_nx,
+  b.py AS bg_py,
+  b.ny AS bg_ny,
+  b.pz AS bg_pz,
+  b.nz AS bg_nz
+FROM models m
+  LEFT JOIN model_files mf_obj
+    ON m.id = mf_obj.model_id
+    AND mf_obj.file_type = 1
+  LEFT JOIN model_files mf_mtl
+    ON m.id = mf_mtl.model_id
+    AND mf_mtl.file_type = 2
+  LEFT JOIN grounds g
+    ON m.ground_id = g.id
+  LEFT JOIN backgrounds b
+    ON m.background_id = b.id
+WHERE m.id = " . $id;
 $result = $conn->query($sql);
 
 if ($result->num_rows > 0) {
@@ -31,7 +57,21 @@ if ($result->num_rows > 0) {
     $description = $row['description'];
     $link = $row['link'];
     $addGround = $row['add_ground'];
+    $addBackground = $row['add_background'];
     $enable_shadows = $row['enable_shadows'];
+    $ground = array(
+        "Id" => $row['ground_id'],
+        "FileName" => $row['ground_filename']
+    );
+    $background = array(
+        "Id" => $row['bg_id'],
+        "Px" => $row['bg_px'],
+        "Py" => $row['bg_py'],
+        "Pz" => $row['bg_pz'],
+        "Nx" => $row['bg_nx'],
+        "Ny" => $row['bg_ny'],
+        "Nz" => $row['bg_nz']
+    );
 } else {
     echo "0 results";
 }
@@ -167,6 +207,16 @@ $conn->close();
             height: 100%;
         }
 
+        #buttons {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 83px;
+            height: 83px;
+            background-color: #cccccc;
+            opacity: 0.8;
+        }
+
         #btnZoomIn {
             position: absolute;
             left: 10px;
@@ -267,10 +317,12 @@ $conn->close();
         <div id="view-container">
             <span id="info"></span>
             <div id="view"></div>
-            <span type="button" id="btnZoomIn"></span>
-            <span type="button" id="btnZoomOut"></span>
-            <span type="button" id="btnRotateLeft"></span>
-            <span type="button" id="btnRotateRight"></span>
+            <div id="buttons">
+                <span type="button" id="btnZoomIn"></span>
+                <span type="button" id="btnZoomOut"></span>
+                <span type="button" id="btnRotateLeft"></span>
+                <span type="button" id="btnRotateRight"></span>
+            </div>
         </div>
     </div>
     <div class="panel-partners">
@@ -301,14 +353,15 @@ $conn->close();
     if (!Detector.webgl) Detector.addGetWebGLMessage();
 
     var container;
-    var camera, scene, renderer, controls;
+    var camera, scene, backgroundScene, backgroundCamera, renderer, controls;
+
+    var loader = new THREE.TextureLoader();
 
     var infoBox = document.getElementById("info");
 
     var start = new Date();
     var zoomIn, zoomOut, rotateLeft, rotateRight;
 
-    var textureLoaded = false;
     var objectAdded = false;
 
     loadObject();
@@ -435,7 +488,6 @@ $conn->close();
         container = document.getElementById('view');
 
         // scene
-
         scene = new THREE.Scene();
 
         var bbox = new THREE.Box3().setFromObject(object);
@@ -475,57 +527,51 @@ $conn->close();
         ?>
         // ground
 
-        var loader = new THREE.TextureLoader();
-
-        var groundTexture = loader.load('textures/grasslight-big.jpg', function () {
-            textureLoaded = true;
-        });
+        var groundTexture = loader.load('textures/grounds/<?= $ground["Id"] ?>/ground.jpg');
         groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
         groundTexture.repeat.set(4, 4);
         groundTexture.anisotropy = 16;
 
-        var groundMaterial = new THREE.MeshPhongMaterial({color: 0xe4e4e4, map: groundTexture});
+        var groundMaterial = new THREE.MeshLambertMaterial({color: 0xe4e4e4, map: groundTexture});
 
-        var mesh = new THREE.Mesh(new THREE.CircleGeometry(bsphere.radius * 4, 64), groundMaterial);
+        var mesh = new THREE.Mesh(new THREE.CircleGeometry(bsphere.radius * 3, 64), groundMaterial);
         mesh.position.y = -bsphere.center.y * 0.75;
         mesh.rotation.x = -Math.PI / 2;
         mesh.receiveShadow = true;
+        mesh.layers.set(0);
         scene.add(mesh);
 
-        var backgroundTexture = loader.load('textures/cube/Park2/panorama.png', function () {
-            textureLoaded = true;
-        });
-//        backgroundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
-//        backgroundTexture.repeat.set(4, 4);
-//        backgroundTexture.anisotropy = 16;
+        <?php
+        }
+        ?>
 
-        var backgroundMaterial = new THREE.MeshPhongMaterial({color: 0xe4e4e4, map: backgroundTexture, side: THREE.BackSide});
+        <?php
+        if ($addBackground == 1) {
+        ?>
 
+        // background
         var material = [
-            new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture('textures/cube/Park2/posx.jpg'), side: THREE.BackSide }),
-            new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture('textures/cube/Park2/negx.jpg'), side: THREE.BackSide }),
-            new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture('textures/cube/Park2/posy.jpg'), side: THREE.BackSide }),
-            new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture('textures/cube/Park2/negy.jpg'), side: THREE.BackSide }),
-            new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture('textures/cube/Park2/posz.jpg'), side: THREE.BackSide }),
-            new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture('textures/cube/Park2/negz.jpg'), side: THREE.BackSide })
+            new THREE.MeshBasicMaterial({ map: loader.load('textures/backgrounds/<?= $background["Id"] ?>/px.jpg'), side: THREE.BackSide }),
+            new THREE.MeshBasicMaterial({ map: loader.load('textures/backgrounds/<?= $background["Id"] ?>/nx.jpg'), side: THREE.BackSide }),
+            new THREE.MeshBasicMaterial({ map: loader.load('textures/backgrounds/<?= $background["Id"] ?>/py.jpg'), side: THREE.BackSide }),
+            new THREE.MeshBasicMaterial({ map: loader.load('textures/backgrounds/<?= $background["Id"] ?>/ny.jpg'), side: THREE.BackSide }),
+            new THREE.MeshBasicMaterial({ map: loader.load('textures/backgrounds/<?= $background["Id"] ?>/pz.jpg'), side: THREE.BackSide }),
+            new THREE.MeshBasicMaterial({ map: loader.load('textures/backgrounds/<?= $background["Id"] ?>/nz.jpg'), side: THREE.BackSide })
         ];
 
-//        var background = new THREE.Mesh(new THREE.SphereBufferGeometry(bsphere.radius * 4), backgroundMaterial);
-        var background = THREE.SceneUtils.createMultiMaterialObject(new THREE.BoxBufferGeometry(bsphere.radius * 4, bsphere.radius * 4, bsphere.radius * 4), material); // new THREE.MeshFaceMaterial(material));
-
-        background.doubleSided = true;
-        console.log(background.position);
-        background.position.y = bsphere.center.y * 0.75;
+        var background = new THREE.Mesh(new THREE.BoxBufferGeometry(bsphere.radius * 12, bsphere.radius * 12, bsphere.radius * 12), new THREE.MeshFaceMaterial(material));
+        background.position.y = bsphere.radius;
+        background.layers.set(1);
         scene.add(background);
 
         <?php
         }
         ?>
 
+        object.layers.set(0);
         scene.add(object);
 
         // camera
-
         camera = new THREE.PerspectiveCamera(fovG, container.clientWidth / container.clientHeight, nearPlane, farPlane);
         camera.position.x = cL.x;
         camera.position.y = cL.y;
@@ -535,7 +581,10 @@ $conn->close();
         // lights
 
         var light;
-        scene.add(new THREE.AmbientLight(0x666666));
+
+        var ambient = new THREE.AmbientLight(0x666666);
+        ambient.layers.set(0);
+        scene.add(ambient);
 
         light = new THREE.DirectionalLight(0xdfebff, 2);
 
@@ -559,14 +608,19 @@ $conn->close();
         light.shadow.camera.far = objectRadius * 2;
         light.shadow.camera.near = objectRadius * 0.2;
 
+        light.layers.set(0);
+
         scene.add(light);
+
+        camera.layers.enable(1);
+        camera.layers.enable(0);
 
         // renderer
 
-        renderer = new THREE.WebGLRenderer({antialias: true});
+        renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(container.clientWidth, container.clientHeight);
-        renderer.setClearColor(0xF5F5F5);
+        renderer.setClearColor(0x000000, 0);
 
         container.appendChild(renderer.domElement);
 
@@ -606,7 +660,7 @@ $conn->close();
 
     function animate() {
         requestAnimationFrame(animate);
-        if (!textureLoaded || !objectAdded)
+        if (!objectAdded)
             return;
         else
             document.getElementById("panel-popup").style.visibility = "hidden";
@@ -622,8 +676,9 @@ $conn->close();
     }
 
     function render() {
-        if (renderer != null)
+        if (renderer != null) {
             renderer.render(scene, camera);
+        }
     }
 
 </script>

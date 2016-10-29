@@ -1,7 +1,7 @@
 ﻿--
 -- Скрипт сгенерирован Devart dbForge Studio for MySQL, Версия 7.1.13.0
 -- Домашняя страница продукта: http://www.devart.com/ru/dbforge/mysql/studio
--- Дата скрипта: 10.10.2016 19:06:04
+-- Дата скрипта: 27.10.2016 22:17:27
 -- Версия сервера: 5.7.13-log
 -- Версия клиента: 4.1
 --
@@ -42,8 +42,8 @@ CREATE TABLE model_files (
   PRIMARY KEY (id)
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 270
-AVG_ROW_LENGTH = 148
+AUTO_INCREMENT = 285
+AVG_ROW_LENGTH = 133
 CHARACTER SET utf8
 COLLATE utf8_general_ci
 ROW_FORMAT = DYNAMIC;
@@ -63,7 +63,7 @@ CREATE TABLE models (
   PRIMARY KEY (id)
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 129
+AUTO_INCREMENT = 132
 AVG_ROW_LENGTH = 1820
 CHARACTER SET utf8
 COLLATE utf8_general_ci
@@ -199,7 +199,22 @@ INSERT INTO model_files VALUES
 (266, 128, 'круговая1.jpg', 'krugovaya1.jpg', 3, 0, NULL),
 (267, 128, 'круговаяопасити.jpg', 'krugovayaopasiti.jpg', 3, 0, NULL),
 (268, 128, 'прозрачный.jpg', 'prozrachnyy.jpg', 3, 0, NULL),
-(269, 128, 'ol-7.obj', 'ol-7.obj', 1, 0, NULL);
+(269, 128, 'ol-7.obj', 'ol-7.obj', 1, 0, NULL),
+(270, 129, 'zl-24.mtl', 'zl-24.mtl', 2, 0, NULL),
+(271, 129, 'веревка зел.jpg', 'verevka zel.jpg', 3, 0, NULL),
+(272, 129, 'птица.png', 'ptitsa.png', 3, 0, NULL),
+(273, 129, 'стрекозный витраж.jpg', 'strekoznyy vitrazh.jpg', 3, 0, NULL),
+(274, 129, 'цветовой круг иам.jpg', 'tsvetovoy krug iam.jpg', 3, 0, NULL),
+(275, 129, 'zl-24.obj', 'zl-24.obj', 1, 0, NULL),
+(276, 130, 'zl145.mtl', 'zl145.mtl', 2, 0, NULL),
+(277, 130, 'zl145.obj', 'zl145.obj', 1, 0, NULL),
+(278, 131, 'kps.mtl', 'kps.mtl', 2, 0, NULL),
+(279, 131, 'mineral_gold_8.jpg', 'mineral_gold_8.jpg', 3, 0, NULL),
+(280, 131, 'mineral_gold_22.jpg', 'mineral_gold_22.jpg', 3, 0, NULL),
+(281, 131, 'kps.obj', 'kps.obj', 1, 0, NULL),
+(282, 131, 'Копия AS2_wood_02.jpg', 'Kopiya AS2_wood_02.jpg', 3, 0, NULL),
+(283, 131, 'термо-сосна Колор-натур.jpg', 'termo-sosna Kolor-natur.jpg', 3, 0, NULL),
+(284, 131, 'фанера посветлее.jpg', 'fanera posvetlee.jpg', 3, 0, NULL);
 
 -- 
 -- Вывод данных для таблицы models
@@ -214,7 +229,10 @@ INSERT INTO models VALUES
 (111, 'Игровой комплекс ЗЛ-24', 'Серия "Заколдованный лес"', '', 1, 1, 0),
 (112, 'Игровой комплекс ЗЛ-24-1', 'Серия "Заколдованный лес"', '', 0, 1, 0),
 (127, 'Игровой комплекс ОЛ-1', 'Серия «Оранжевое лето»', 'http://fun-terra.ru/catalog/seriya-oranzhevoe-leto/ol-01.html', 1, 1, 0),
-(128, 'Игровой комплекс ОЛ-7', 'Серия «Оранжевое лето»', 'http://fun-terra.ru/catalog/seriya-oranzhevoe-leto/ol-07.html', 1, 1, 0);
+(128, 'Игровой комплекс ОЛ-7', 'Серия «Оранжевое лето»', 'http://fun-terra.ru/catalog/seriya-oranzhevoe-leto/ol-07.html', 1, 1, 0),
+(129, 'Новая модель', NULL, NULL, 1, 1, 0),
+(130, 'Новая модель', NULL, NULL, 1, 1, 0),
+(131, 'Новая модель', NULL, NULL, 1, 1, 0);
 
 -- 
 -- Восстановить предыдущий режим SQL (SQL mode)
